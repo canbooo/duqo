@@ -8,10 +8,10 @@ from submission.runners.rrdo_adaptive_svr import main as adaptive_svr
 from submission.runners.rrdo_adaptive_mean_gp import main as adaptive_mean_gp
 from submission.runners.rrdo_adaptive_mean_svr import main as adaptive_mean_svr
 from submission.runners.rrdo_mc import main as random_sampling
-from submission.plots import plot_pareto
+from submission.plots import plot
 
 
-def main(pop_size=5, opt_iters=5):
+def main(pop_size=None, opt_iters=None):
     """
     Run all scripts
 
@@ -30,17 +30,17 @@ def main(pop_size=5, opt_iters=5):
         # In case things go wrong in code ocean
         save_dir = os.path.abspath(".")
 
-    for example_name in ["ex3"]:  # "ex1", "ex2", "ex3"
-        # print("Testing Random Strategy")
-        # random_sampling(example_name, save_dir=save_dir)
-        # print("Testing Direct Strategy")
-        # direct(example_name, save_dir=save_dir, force_pop_size=pop_size, force_opt_iters=opt_iters)
-        # print("Testing Direct Short Strategy")
-        # direct_short(example_name, save_dir=save_dir, force_pop_size=pop_size, force_opt_iters=opt_iters)
-        # print("Testing Stationary GP Strategy")
-        # stationary_gp(example_name, save_dir=save_dir, force_pop_size=pop_size, force_opt_iters=opt_iters)
-        # print("Testing Stationary SVR Strategy")
-        # stationary_svr(example_name, save_dir=save_dir, force_pop_size=pop_size, force_opt_iters=opt_iters)
+    for example_name in ["ex1", "ex2", "ex3"]:  #
+        print("Testing Random Strategy")
+        random_sampling(example_name, save_dir=save_dir)
+        print("Testing Direct Strategy")
+        direct(example_name, save_dir=save_dir, force_pop_size=pop_size, force_opt_iters=opt_iters)
+        print("Testing Direct Short Strategy")
+        direct_short(example_name, save_dir=save_dir, force_pop_size=pop_size, force_opt_iters=opt_iters)
+        print("Testing Stationary GP Strategy")
+        stationary_gp(example_name, save_dir=save_dir, force_pop_size=pop_size, force_opt_iters=opt_iters)
+        print("Testing Stationary SVR Strategy")
+        stationary_svr(example_name, save_dir=save_dir, force_pop_size=pop_size, force_opt_iters=opt_iters)
         print("Testing LoLHR GP Strategy")
         adaptive_gp(example_name, save_dir=save_dir, force_pop_size=pop_size, force_opt_iters=opt_iters)
         print("Testing LoLHR SVR Strategy")
@@ -49,7 +49,7 @@ def main(pop_size=5, opt_iters=5):
         adaptive_mean_gp(example_name, save_dir=save_dir, force_pop_size=pop_size, force_opt_iters=opt_iters)
         print("Testing Gu et. Al. (2014) Strategy with SVR")
         adaptive_mean_svr(example_name, save_dir=save_dir, force_pop_size=pop_size, force_opt_iters=opt_iters)
-        plot_pareto(example_name, os.path.join(save_dir, "results"))
+        plot(example_name, os.path.join(save_dir, "results"))
 
 
 if __name__ == "__main__":
