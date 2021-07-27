@@ -455,7 +455,7 @@ def make_doe(num_sample, margs=None, corr_mat=0, num_tries=None,
         margs = [uniform(lb, ub - lb)
                  for lb, ub in zip(lower_bound, upper_bound)]
     if num_sample == 1:
-        return np.array([[marg.rvs(1) for marg in margs]])
+        return np.array([marg.rvs(1) for marg in margs]).reshape((1, -1))
     if num_tries is None:
         if num_sample < 100:
             num_tries = 20000
