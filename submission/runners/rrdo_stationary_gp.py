@@ -164,13 +164,13 @@ def make_problem(full_space, obj_wgt, target_fail_prob, base_doe, ra_methods,
 def main(exname, save_dir=".", force_pop_size=None, force_opt_iters=None):
     if exname == "ex1":
         from ..definitions.example1 import n_var, n_obj, n_con, target_pf, margs, lower, upper, n_stop, popsize, \
-            maxgens, ra_methods, scale_objs, obj_fun, con_fun, funs, model_obj, model_con
+            maxgens, ra_methods, scale_objs, obj_fun, con_fun, funs, model_obj, model_con, opt_inps
     elif exname == "ex2":
         from ..definitions.example2 import n_var, n_obj, n_con, target_pf, margs, lower, upper, n_stop, popsize, \
-            maxgens, ra_methods, scale_objs, obj_fun, con_fun, funs, model_obj, model_con
+            maxgens, ra_methods, scale_objs, obj_fun, con_fun, funs, model_obj, model_con, opt_inps
     elif exname == "ex3":
         from ..definitions.example3 import n_var, n_obj, n_con, target_pf, margs, lower, upper, n_stop, popsize, \
-            maxgens, ra_methods, scale_objs, obj_fun, con_fun, funs, model_obj, model_con
+            maxgens, ra_methods, scale_objs, obj_fun, con_fun, funs, model_obj, model_con, opt_inps
     else:
         raise ValueError(exname + " not recognized.")
 
@@ -192,7 +192,7 @@ def main(exname, save_dir=".", force_pop_size=None, force_opt_iters=None):
     res_key = os.path.join(save_dir, res_key)
     return direct_rrdo(obj_fun, con_fun, funs, n_stop, model_obj, model_con, n_obj, n_con, n_var, lower, upper, margs,
                        ra_methods=ra_methods, scale_objs=scale_objs, target_fail_prob=target_pf, pop_size=2 * popsize,
-                       max_gens=2 * maxgens, verbose=1, res_key=res_key)
+                       max_gens=2 * maxgens, verbose=1, res_key=res_key, opt_inps=opt_inps)
 
 
 if __name__ == "__main__":

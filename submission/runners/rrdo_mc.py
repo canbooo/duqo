@@ -78,13 +78,13 @@ def direct_rrdo(num_samples, objectives, constraints, num_obj, num_con, n_inp_to
 def main(exname, save_dir="."):
     if exname == "ex1":
         from ..definitions.example1 import n_var, n_obj, n_con, target_pf, margs, lower, upper, ra_methods,\
-            n_stop, obj_fun, con_fun
+            n_stop, obj_fun, con_fun, opt_inps
     elif exname == "ex2":
         from ..definitions.example2 import n_var, n_obj, n_con, target_pf, margs, lower, upper, ra_methods, \
-            n_stop, obj_fun, con_fun
+            n_stop, obj_fun, con_fun, opt_inps
     elif exname == "ex3":
         from ..definitions.example3 import n_var, n_obj, n_con, target_pf, margs, lower, upper, ra_methods, \
-            n_stop, obj_fun, con_fun
+            n_stop, obj_fun, con_fun, opt_inps
     else:
         raise ValueError(exname + " not recognized.")
     save_dir = os.path.join(save_dir, "results")
@@ -100,7 +100,7 @@ def main(exname, save_dir="."):
     res_key = os.path.join(save_dir, res_key)
     return direct_rrdo(n_stop, obj_fun, con_fun, n_obj, n_con, n_var,
                        lower, upper, margs, target_fail_prob=target_pf,
-                       ra_methods=ra_methods, res_key=res_key)
+                       ra_methods=ra_methods, res_key=res_key, opt_inps=opt_inps)
 
 
 if __name__ == "__main__":

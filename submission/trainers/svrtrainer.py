@@ -48,6 +48,7 @@ def model_trainer(doe, *funcs, slices=None):
     doe = doe[np.isfinite(doe).all(1)]
     for i_fun, func in enumerate(funcs):
         output = func(doe).reshape((-1, 1))  # Assume scalar
+        print(f"Training SVR for function {func.__name__} with {output.shape[0]} samples")
         inds = np.isfinite(output).all(1)
         # print(np.sum(output <= 0), "fails in DoE.")
         # output = output >= 0

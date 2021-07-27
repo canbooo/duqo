@@ -105,13 +105,13 @@ def direct_rrdo(objectives, constraints, num_obj, num_con, n_inp_total,
 def main(exname, save_dir=".", force_pop_size=None, force_opt_iters=None):
     if exname == "ex1":
         from ..definitions.example1 import n_var, n_obj, n_con, target_pf, margs, lower, upper, popsize, maxgens, \
-            ra_methods, scale_objs, obj_fun, con_fun
+            ra_methods, scale_objs, obj_fun, con_fun, opt_inps
     elif exname == "ex2":
         from ..definitions.example2 import n_var, n_obj, n_con, target_pf, margs, lower, upper, popsize, maxgens, \
-            ra_methods, scale_objs, obj_fun, con_fun
+            ra_methods, scale_objs, obj_fun, con_fun, opt_inps
     elif exname == "ex3":
         from ..definitions.example3 import n_var, n_obj, n_con, target_pf, margs, lower, upper, popsize, maxgens, \
-            ra_methods, scale_objs, obj_fun, con_fun
+            ra_methods, scale_objs, obj_fun, con_fun, opt_inps
     else:
         raise ValueError(exname + " not recognized.")
 
@@ -134,7 +134,7 @@ def main(exname, save_dir=".", force_pop_size=None, force_opt_iters=None):
     return direct_rrdo(obj_fun, con_fun, n_obj, n_con, n_var,
                        lower, upper, margs, target_fail_prob=target_pf,
                        verbose=1, ra_methods=ra_methods, scale_objs=scale_objs,
-                       pop_size=popsize, max_gens=maxgens,
+                       pop_size=popsize, max_gens=maxgens, opt_inps=opt_inps,
                        res_key=res_key)
 
 
