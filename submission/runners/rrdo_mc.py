@@ -17,14 +17,10 @@ from pyRDO import ConditionalProbability, ConditionalMoment
 from pyRDO import RRDO, UniVar, MultiVar, InputSpace, FullSpace
 
 
-def direct_rrdo(objectives, constraints, num_obj, num_con, n_inp_total,
+def direct_rrdo(num_samples, objectives, constraints, num_obj, num_con, n_inp_total,
                 lower, upper, margs, sto_inps=None, opt_inps=None,
-                ra_methods=None, scale_objs=False,
-                obj_arg=None, con_arg=None, sto_obj_inds: list = None,
-                sto_con_inds: list = None, obj_wgt=1.96, base_doe=True,
-                target_fail_prob=None, pop_size=100, max_gens=100,
-                punish_factor=100, pareto_size=1000, verbose=0, start_gen=None,
-                res_key=None):
+                ra_methods=None, obj_arg=None, con_arg=None, sto_obj_inds: list = None,
+                sto_con_inds: list = None, obj_wgt=1.96, base_doe=True, target_fail_prob=None, res_key=None):
     dists = [UniVar(m["name"], **m["kwargs"]) for m in margs]
     mv = MultiVar(dists)  # no correlation assumed
     if sto_inps is None:
@@ -55,10 +51,11 @@ def direct_rrdo(objectives, constraints, num_obj, num_con, n_inp_total,
         res_key = ''.join(
             random.choice(string.ascii_lowercase) for i in range(6))
     # Do here to avoid errors after computation
+    res_key = str(res_key)
     n_opt = len(lower)
 
     nit, nfev = 0, 0
-    cands = np.random.rand(128, len(lower)) * (np.array(upper) - np.array(lower)) + np.array(lower)
+    cands = np.random.rand(num_samples, len(lower)) * (np.array(upper) - np.array(lower)) + np.array(lower)
     results = []
     for i, c in enumerate(cands):
         print("Computing final result for pareto design", i + 1, "of", len(cands))
@@ -80,11 +77,14 @@ def direct_rrdo(objectives, constraints, num_obj, num_con, n_inp_total,
 
 def main(exname, save_dir="."):
     if exname == "ex1":
-        from ..definitions.example1 import n_var, n_obj, n_con, target_pf, margs, lower, upper, popsize, maxgens, ra_methods, scale_objs, obj_fun, con_fun
+        from ..definitions.example1 import n_var, n_obj, n_con, target_pf, margs, lower, upper, ra_methods,\
+            n_stop, obj_fun, con_fun
     elif exname == "ex2":
-        from ..definitions.example2 import n_var, n_obj, n_con, target_pf, margs, lower, upper, popsize, maxgens, ra_methods, scale_objs, obj_fun, con_fun
+        from ..definitions.example2 import n_var, n_obj, n_con, target_pf, margs, lower, upper, ra_methods, \
+            n_stop, obj_fun, con_fun
     elif exname == "ex3":
-        from ..definitions.example3 import n_var, n_obj, n_con, target_pf, margs, lower, upper, popsize, maxgens, ra_methods, scale_objs, obj_fun, con_fun
+        from ..definitions.example3 import n_var, n_obj, n_con, target_pf, margs, lower, upper, ra_methods, \
+            n_stop, obj_fun, con_fun
     else:
         raise ValueError(exname + " not recognized.")
     save_dir = os.path.join(save_dir, "results")
@@ -98,11 +98,9 @@ def main(exname, save_dir="."):
 
     res_key = exname + (res_key if res_key is not None else "")
     res_key = os.path.join(save_dir, res_key)
-    return direct_rrdo(obj_fun, con_fun, n_obj, n_con, n_var,
+    return direct_rrdo(n_stop, obj_fun, con_fun, n_obj, n_con, n_var,
                        lower, upper, margs, target_fail_prob=target_pf,
-                       verbose=1, ra_methods=ra_methods, scale_objs=scale_objs,
-                       pop_size=popsize, max_gens=maxgens,
-                       res_key=res_key)
+                       ra_methods=ra_methods, res_key=res_key)
 
 
 if __name__ == "__main__":

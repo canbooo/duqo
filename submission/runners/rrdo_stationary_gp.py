@@ -27,9 +27,8 @@ def direct_rrdo(objectives, constraints, trainer_args, num_samples, model_object
                 scale_objs=False, obj_arg=None, con_arg=None, sto_obj_inds: list = None, sto_con_inds: list = None,
                 obj_wgt=1.96, base_doe=True, target_fail_prob=None, pop_size=100, max_gens=100, punish_factor=100,
                 pareto_size=1000, verbose=0, start_gen=None, res_key=None):
-
     dists = [UniVar(m["name"], **m["kwargs"]) for m in margs]
-    mv = MultiVar(dists) # no correlation assumed
+    mv = MultiVar(dists)  # no correlation assumed
     if sto_inps is None:
         sto_inps = np.arange(len(mv))
     if opt_inps is None:
@@ -42,7 +41,7 @@ def direct_rrdo(objectives, constraints, trainer_args, num_samples, model_object
                            opt_inps=opt_inps, sto_inps=sto_inps)
 
     lower_doe, upper_doe = inp_space.doe_bounds((1 - 0.999) / 2, lower, upper)
-    print(lower_doe, upper_doe)
+
     if res_key is None:
         res_key = ''.join(
             random.choice(string.ascii_lowercase) for i in range(6))
@@ -51,7 +50,7 @@ def direct_rrdo(objectives, constraints, trainer_args, num_samples, model_object
 
     cur_doe = make_doe(num_samples, lower_bound=lower_doe,
                        upper_bound=upper_doe)
-    
+
     models = model_trainer(cur_doe, *trainer_args)
     if obj_arg is None:
         model_obj_arg = [models]
@@ -75,17 +74,26 @@ def direct_rrdo(objectives, constraints, trainer_args, num_samples, model_object
                            con_fun=model_constraints, con_arg=model_con_arg,
                            sto_objs=sto_obj_inds, sto_cons=sto_con_inds)
 
-
     problem = make_problem(full_space, obj_wgt, target_fail_prob,
                            base_doe, ra_methods)
-    def obj_con(x, *args, **kwargs):
-        objs, feasible, det_cons, fail_probs = problem.obj_con(x, *args, **kwargs)
-        if target_fail_prob is None:
-            return objs, det_cons
-        return objs, np.c_[det_cons, (target_fail_prob - fail_probs)/target_fail_prob]
+    if res_key is None:
+        res_key = ''.join(
+            random.choice(string.ascii_lowercase) for i in range(6))
+    res_key = str(res_key)
+    if "ex3" in res_key:
+        def obj_con(x, *args, **kwargs):
+            objs, feasible, det_cons, fail_probs = problem.obj_con(x, *args, **kwargs)
+            fail_probs = np.maximum(target_fail_prob / 100, np.minimum(0.5, fail_probs.reshape((-1, 1))))
+            objs = np.c_[objs, fail_probs]
+            return objs, np.c_[det_cons, (target_fail_prob - fail_probs) / target_fail_prob]
+    else:
+        def obj_con(x, *args, **kwargs):
+            objs, feasible, det_cons, fail_probs = problem.obj_con(x, *args, **kwargs)
+            if target_fail_prob is None:
+                return objs, det_cons
+            return objs, np.c_[det_cons, (target_fail_prob - fail_probs) / target_fail_prob]
     if obj_wgt is None:
         num_obj += len(sto_obj_inds)
-    
 
     opter = InspyredOptimizer(obj_con, lower, upper, num_obj, method="NSGA",
                               verbose=verbose, scale_objs=scale_objs)
@@ -133,7 +141,6 @@ def direct_rrdo(objectives, constraints, trainer_args, num_samples, model_object
                      "num_opt_it": nit,
                      "num_opt_fev": nfev}
 
-
     with open(res_key, "wb") as f:
         pickle.dump(save_res_true, f)
 
@@ -153,6 +160,7 @@ def make_problem(full_space, obj_wgt, target_fail_prob, base_doe, ra_methods,
     problem = RRDO(full_space, co_fp=cprob, co_mom=cmom)
     return problem
 
+
 def model_trainer(doe, *functions):
     models = []
     for func in functions:
@@ -163,11 +171,14 @@ def model_trainer(doe, *functions):
 
 def main(exname, save_dir="."):
     if exname == "ex1":
-        from ..definitions.example1 import n_var, n_obj, n_con, target_pf, margs, lower, upper, n_stop, popsize, maxgens, ra_methods, scale_objs, obj_fun, con_fun, funs, model_obj, model_con
+        from ..definitions.example1 import n_var, n_obj, n_con, target_pf, margs, lower, upper, n_stop, popsize, \
+            maxgens, ra_methods, scale_objs, obj_fun, con_fun, funs, model_obj, model_con
     elif exname == "ex2":
-        from ..definitions.example2 import n_var, n_obj, n_con, target_pf, margs, lower, upper, n_stop, popsize, maxgens, ra_methods, scale_objs, obj_fun, con_fun
+        from ..definitions.example2 import n_var, n_obj, n_con, target_pf, margs, lower, upper, n_stop, popsize, \
+            maxgens, ra_methods, scale_objs, obj_fun, con_fun, funs, model_obj, model_con
     elif exname == "ex3":
-        from ..definitions.example3 import n_var, n_obj, n_con, target_pf, margs, lower, upper, n_stop, popsize, maxgens, ra_methods, scale_objs, obj_fun, con_fun
+        from ..definitions.example3 import n_var, n_obj, n_con, target_pf, margs, lower, upper, n_stop, popsize, \
+            maxgens, ra_methods, scale_objs, obj_fun, con_fun, funs, model_obj, model_con
     else:
         raise ValueError(exname + " not recognized.")
     save_dir = os.path.join(save_dir, "results")
@@ -184,6 +195,7 @@ def main(exname, save_dir="."):
     return direct_rrdo(obj_fun, con_fun, funs, n_stop, model_obj, model_con, n_obj, n_con, n_var, lower, upper, margs,
                        ra_methods=ra_methods, scale_objs=scale_objs, target_fail_prob=target_pf, pop_size=2 * popsize,
                        max_gens=2 * maxgens, verbose=1, res_key=res_key)
+
 
 if __name__ == "__main__":
     _ = main("ex1")

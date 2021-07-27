@@ -45,7 +45,7 @@ def direct_rrdo(objectives, constraints, trainer_args, num_samples,
                            opt_inps=opt_inps, sto_inps=sto_inps)
 
     lower_doe, upper_doe = inp_space.doe_bounds((1 - 0.999) / 2, lower, upper)
-    print(lower_doe, upper_doe)
+
     if res_key is None:
         res_key = ''.join(
             random.choice(string.ascii_lowercase) for i in range(6))
@@ -79,12 +79,22 @@ def direct_rrdo(objectives, constraints, trainer_args, num_samples,
 
     problem = make_problem(full_space, obj_wgt, target_fail_prob,
                            base_doe, ra_methods)
-
-    def obj_con(x, *args, **kwargs):
-        objs, feasible, det_cons, fail_probs = problem.obj_con(x, *args, **kwargs)
-        if target_fail_prob is None:
-            return objs, det_cons
-        return objs, np.c_[det_cons, (target_fail_prob - fail_probs) / target_fail_prob]
+    if res_key is None:
+        res_key = ''.join(
+            random.choice(string.ascii_lowercase) for i in range(6))
+    res_key = str(res_key)
+    if "ex3" in res_key:
+        def obj_con(x, *args, **kwargs):
+            objs, feasible, det_cons, fail_probs = problem.obj_con(x, *args, **kwargs)
+            fail_probs = np.maximum(target_fail_prob / 100, np.minimum(0.5, fail_probs.reshape((-1, 1))))
+            objs = np.c_[objs, fail_probs]
+            return objs, np.c_[det_cons, (target_fail_prob - fail_probs) / target_fail_prob]
+    else:
+        def obj_con(x, *args, **kwargs):
+            objs, feasible, det_cons, fail_probs = problem.obj_con(x, *args, **kwargs)
+            if target_fail_prob is None:
+                return objs, det_cons
+            return objs, np.c_[det_cons, (target_fail_prob - fail_probs) / target_fail_prob]
 
     if obj_wgt is None:
         num_obj += len(sto_obj_inds)
@@ -157,11 +167,14 @@ def make_problem(full_space, obj_wgt, target_fail_prob, base_doe, ra_methods,
 
 def main(exname, save_dir="."):
     if exname == "ex1":
-        from ..definitions.example1 import n_var, n_obj, n_con, target_pf, margs, lower, upper, n_stop, popsize, maxgens, ra_methods, scale_objs, obj_fun, con_fun, funs, model_obj, model_con
+        from ..definitions.example1 import n_var, n_obj, n_con, target_pf, margs, lower, upper, n_stop, popsize, \
+            maxgens, ra_methods, scale_objs, obj_fun, con_fun, funs, model_obj, model_con
     elif exname == "ex2":
-        from ..definitions.example2 import n_var, n_obj, n_con, target_pf, margs, lower, upper, n_stop, popsize, maxgens, ra_methods, scale_objs, obj_fun, con_fun
+        from ..definitions.example2 import n_var, n_obj, n_con, target_pf, margs, lower, upper, n_stop, popsize, \
+            maxgens, ra_methods, scale_objs, obj_fun, con_fun, funs, model_obj, model_con
     elif exname == "ex3":
-        from ..definitions.example3 import n_var, n_obj, n_con, target_pf, margs, lower, upper, n_stop, popsize, maxgens, ra_methods, scale_objs, obj_fun, con_fun
+        from ..definitions.example3 import n_var, n_obj, n_con, target_pf, margs, lower, upper, n_stop, popsize, \
+            maxgens, ra_methods, scale_objs, obj_fun, con_fun, funs, model_obj, model_con
     else:
         raise ValueError(exname + " not recognized.")
     save_dir = os.path.join(save_dir, "results")

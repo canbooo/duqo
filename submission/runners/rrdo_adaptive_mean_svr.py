@@ -101,19 +101,26 @@ def direct_rrdo(objectives, constraints, trainer_args, start_samples, step_size,
     problem = make_problem(full_space, obj_wgt, target_fail_prob,
                            base_doe, ra_methods)
 
-    def obj_con(x, *args, **kwargs):
-        objs, feasible, det_cons, fail_probs = problem.obj_con(x, *args, **kwargs)
-        if target_fail_prob is None:
-            return objs, det_cons
-        return objs, np.c_[det_cons, (target_fail_prob - fail_probs) / target_fail_prob]
-
-    if obj_wgt is None:
-        num_obj += len(sto_obj_inds)
     if res_key is None:
         res_key = ''.join(
             random.choice(string.ascii_lowercase) for i in range(6))
     # Do here to avoid errors after computation
     res_key = str(res_key)
+    if "ex3" in res_key:
+        def obj_con(x, *args, **kwargs):
+            objs, feasible, det_cons, fail_probs = problem.obj_con(x, *args, **kwargs)
+            fail_probs = np.maximum(target_fail_prob / 100, np.minimum(0.5, fail_probs.reshape((-1, 1))))
+            objs = np.c_[objs, fail_probs]
+            return objs, np.c_[det_cons, (target_fail_prob - fail_probs) / target_fail_prob]
+    else:
+        def obj_con(x, *args, **kwargs):
+            objs, feasible, det_cons, fail_probs = problem.obj_con(x, *args, **kwargs)
+            if target_fail_prob is None:
+                return objs, det_cons
+            return objs, np.c_[det_cons, (target_fail_prob - fail_probs) / target_fail_prob]
+
+    if obj_wgt is None:
+        num_obj += len(sto_obj_inds)
 
     opter = InspyredOptimizer(obj_con, lower, upper, num_obj, method="NSGA",
                               verbose=verbose, scale_objs=scale_objs)
@@ -129,6 +136,8 @@ def direct_rrdo(objectives, constraints, trainer_args, start_samples, step_size,
         front = front[valid]
         next_cands = select_candidates(front, cands, step_size)
         if next_cands.shape[0] < step_size:
+            # What if the Pareto frontier is smaller? Following is not part of Gu et. al. but included here to handle
+            # this edge case
             extras = make_doe(step_size - next_cands.shape[0], lower_bound=lower_doe, upper_bound=upper_doe)
             next_cands = np.append(next_cands, extras, axis=0)
         cur_doe = np.append(cur_doe, next_cands, axis=0)
@@ -206,10 +215,10 @@ def main(exname, save_dir="."):
             n_step, n_stop, popsize, maxgens, ra_methods, scale_objs, obj_fun, con_fun, funs, model_obj, model_con
     elif exname == "ex2":
         from ..definitions.example2 import n_var, n_obj, n_con, target_pf, margs, lower, upper, n_start, \
-            n_step, n_stop, popsize, maxgens, ra_methods, scale_objs, obj_fun, con_fun
+            n_step, n_stop, popsize, maxgens, ra_methods, scale_objs, obj_fun, con_fun, funs, model_obj, model_con
     elif exname == "ex3":
         from ..definitions.example3 import n_var, n_obj, n_con, target_pf, margs, lower, upper, n_start, \
-            n_step, n_stop, popsize, maxgens, ra_methods, scale_objs, obj_fun, con_fun
+            n_step, n_stop, popsize, maxgens, ra_methods, scale_objs, obj_fun, con_fun, funs, model_obj, model_con
     else:
         raise ValueError(exname + " not recognized.")
     save_dir = os.path.join(save_dir, "results")

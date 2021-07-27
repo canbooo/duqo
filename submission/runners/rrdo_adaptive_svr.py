@@ -72,19 +72,27 @@ def direct_rrdo(objectives, constraints, trainer, trainer_args, start_samples,
     problem = make_problem(full_space, obj_wgt, target_fail_prob,
                            base_doe, ra_methods)
 
-    def obj_con(x, *args, **kwargs):
-        objs, feasible, det_cons, fail_probs = problem.obj_con(x, *args, **kwargs)
-        if target_fail_prob is None:
-            return objs, det_cons
-        return objs, np.c_[det_cons, (target_fail_prob - fail_probs) / target_fail_prob]
-
-    if obj_wgt is None:
-        num_obj += len(sto_obj_inds)
     if res_key is None:
         res_key = ''.join(
             random.choice(string.ascii_lowercase) for i in range(6))
     # Do here to avoid errors after computation
     res_key = str(res_key)
+    if "ex3" in res_key:
+        def obj_con(x, *args, **kwargs):
+            objs, feasible, det_cons, fail_probs = problem.obj_con(x, *args, **kwargs)
+            fail_probs = np.maximum(target_fail_prob / 100, np.minimum(0.5, fail_probs.reshape((-1, 1))))
+            objs = np.c_[objs, fail_probs]
+            return objs, np.c_[det_cons, (target_fail_prob - fail_probs) / target_fail_prob]
+    else:
+        def obj_con(x, *args, **kwargs):
+            objs, feasible, det_cons, fail_probs = problem.obj_con(x, *args, **kwargs)
+            if target_fail_prob is None:
+                return objs, det_cons
+            return objs, np.c_[det_cons, (target_fail_prob - fail_probs) / target_fail_prob]
+
+    if obj_wgt is None:
+        num_obj += len(sto_obj_inds)
+
 
     opter = InspyredOptimizer(obj_con, lower, upper, num_obj, method="NSGA",
                               verbose=verbose, scale_objs=scale_objs)
@@ -98,7 +106,7 @@ def direct_rrdo(objectives, constraints, trainer, trainer_args, start_samples,
                      optimizer_kwargs=opter_args,
                      model_trainer_args=trainer_args)
 
-    cur_doe, cands, objs, cons = res
+    cur_doe, cands, _, cons = res
 
     nit, nfev = opter.nit, opter.nfev
 
@@ -163,10 +171,10 @@ def main(exname, save_dir="."):
             n_step, n_stop, popsize, maxgens, ra_methods, scale_objs, obj_fun, con_fun, funs, model_obj, model_con
     elif exname == "ex2":
         from ..definitions.example2 import n_var, n_obj, n_con, target_pf, margs, lower, upper, n_start, \
-            n_step, n_stop, popsize, maxgens, ra_methods, scale_objs, obj_fun, con_fun
+            n_step, n_stop, popsize, maxgens, ra_methods, scale_objs, obj_fun, con_fun, funs, model_obj, model_con
     elif exname == "ex3":
         from ..definitions.example3 import n_var, n_obj, n_con, target_pf, margs, lower, upper, n_start, \
-            n_step, n_stop, popsize, maxgens, ra_methods, scale_objs, obj_fun, con_fun
+            n_step, n_stop, popsize, maxgens, ra_methods, scale_objs, obj_fun, con_fun, funs, model_obj, model_con
     else:
         raise ValueError(exname + " not recognized.")
     save_dir = os.path.join(save_dir, "results")

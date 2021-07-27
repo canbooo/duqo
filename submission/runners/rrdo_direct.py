@@ -52,20 +52,28 @@ def direct_rrdo(objectives, constraints, num_obj, num_con, n_inp_total,
                                        methods=ra_methods,
                                        )
     problem = RRDO(full_space, co_fp=cprob, co_mom=cmom)
-
-    def obj_con(x, *args, **kwargs):
-        objs, feasible, det_cons, fail_probs = problem.obj_con(x, *args, **kwargs)
-        if target_fail_prob is None:
-            return objs, det_cons
-        return objs, np.c_[det_cons, (target_fail_prob - fail_probs) / target_fail_prob]
-
-    if obj_wgt is None:
-        num_obj += len(sto_obj_inds)
     if res_key is None:
         res_key = ''.join(
             random.choice(string.ascii_lowercase) for i in range(6))
     # Do here to avoid errors after computation
     res_key = str(res_key)
+    if "ex3" in res_key:
+        def obj_con(x, *args, **kwargs):
+            objs, feasible, det_cons, fail_probs = problem.obj_con(x, *args, **kwargs)
+            fail_probs = np.maximum(target_fail_prob / 100, np.minimum(0.5, fail_probs.reshape((-1, 1))))
+            objs = np.c_[objs, fail_probs]
+            return objs, np.c_[det_cons, (target_fail_prob - fail_probs) / target_fail_prob]
+    else:
+        def obj_con(x, *args, **kwargs):
+            objs, feasible, det_cons, fail_probs = problem.obj_con(x, *args, **kwargs)
+            if target_fail_prob is None:
+                return objs, det_cons
+            return objs, np.c_[det_cons, (target_fail_prob - fail_probs) / target_fail_prob]
+
+    if obj_wgt is None:
+        num_obj += len(sto_obj_inds)
+
+
     opter = InspyredOptimizer(obj_con, lower, upper, num_obj, method="NSGA",
                               verbose=verbose, scale_objs=scale_objs)
     res = opter.optimize(pop_size=pop_size, max_gens=max_gens,
