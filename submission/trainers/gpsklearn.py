@@ -12,7 +12,8 @@ from scipy.optimize import minimize
 from sklearn.preprocessing import StandardScaler
 
 from sklearn.gaussian_process import GaussianProcessRegressor
-from sklearn.gaussian_process.kernels import WhiteKernel, ConstantKernel
+from sklearn.gaussian_process.kernels import RBF, RationalQuadratic, WhiteKernel
+from sklearn.gaussian_process.kernels import Matern, DotProduct, ConstantKernel
 from sklearn.pipeline import Pipeline
 
 
