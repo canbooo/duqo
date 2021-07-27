@@ -73,7 +73,6 @@ def direct_rrdo(objectives, constraints, num_obj, num_con, n_inp_total,
     if obj_wgt is None:
         num_obj += len(sto_obj_inds)
 
-
     opter = InspyredOptimizer(obj_con, lower, upper, num_obj, method="NSGA",
                               verbose=verbose, scale_objs=scale_objs)
     res = opter.optimize(pop_size=pop_size, max_gens=max_gens,
@@ -103,15 +102,24 @@ def direct_rrdo(objectives, constraints, num_obj, num_con, n_inp_total,
     return save_res
 
 
-def main(exname, save_dir="."):
+def main(exname, save_dir=".", force_pop_size=None, force_opt_iters=None):
     if exname == "ex1":
-        from ..definitions.example1 import n_var, n_obj, n_con, target_pf, margs, lower, upper, popsize, maxgens, ra_methods, scale_objs, obj_fun, con_fun
+        from ..definitions.example1 import n_var, n_obj, n_con, target_pf, margs, lower, upper, popsize, maxgens, \
+            ra_methods, scale_objs, obj_fun, con_fun
     elif exname == "ex2":
-        from ..definitions.example2 import n_var, n_obj, n_con, target_pf, margs, lower, upper, popsize, maxgens, ra_methods, scale_objs, obj_fun, con_fun
+        from ..definitions.example2 import n_var, n_obj, n_con, target_pf, margs, lower, upper, popsize, maxgens, \
+            ra_methods, scale_objs, obj_fun, con_fun
     elif exname == "ex3":
-        from ..definitions.example3 import n_var, n_obj, n_con, target_pf, margs, lower, upper, popsize, maxgens, ra_methods, scale_objs, obj_fun, con_fun
+        from ..definitions.example3 import n_var, n_obj, n_con, target_pf, margs, lower, upper, popsize, maxgens, \
+            ra_methods, scale_objs, obj_fun, con_fun
     else:
         raise ValueError(exname + " not recognized.")
+
+    if force_pop_size is not None:
+        popsize = force_pop_size
+    if force_opt_iters is not None:
+        maxgens = force_opt_iters
+
     save_dir = os.path.join(save_dir, "results")
     if not os.path.isdir(save_dir):
         os.makedirs(save_dir)

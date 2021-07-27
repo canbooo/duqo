@@ -165,7 +165,7 @@ def make_problem(full_space, obj_wgt, target_fail_prob, base_doe, ra_methods,
     return problem
 
 
-def main(exname, save_dir="."):
+def main(exname, save_dir=".", force_pop_size=None, force_opt_iters=None):
     if exname == "ex1":
         from ..definitions.example1 import n_var, n_obj, n_con, target_pf, margs, lower, upper, n_start, \
             n_step, n_stop, popsize, maxgens, ra_methods, scale_objs, obj_fun, con_fun, funs, model_obj, model_con
@@ -177,6 +177,12 @@ def main(exname, save_dir="."):
             n_step, n_stop, popsize, maxgens, ra_methods, scale_objs, obj_fun, con_fun, funs, model_obj, model_con
     else:
         raise ValueError(exname + " not recognized.")
+
+    if force_pop_size is not None:
+        popsize = force_pop_size
+    if force_opt_iters is not None:
+        maxgens = force_opt_iters
+
     save_dir = os.path.join(save_dir, "results")
     if not os.path.isdir(save_dir):
         os.makedirs(save_dir)
