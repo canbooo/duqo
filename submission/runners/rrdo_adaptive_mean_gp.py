@@ -131,6 +131,7 @@ def direct_rrdo(objectives, constraints, trainer_args, start_samples, step_size,
         cands = cands[valid]
         front = front[valid]
         next_cands = select_candidates(front, cands, step_size)
+        next_cands = inp_space.opt2full(next_cands)
         if next_cands.shape[0] < step_size:
             # What if the Pareto frontier is smaller? Following is not part of Gu et. al. but included here to handle
             # this edge case
