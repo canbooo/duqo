@@ -9,7 +9,7 @@ Created on Mon May  2 21:28:53 2016
 @author: Bogoclu
 """
 
-from __future__ import print_function, division
+
 from copy import deepcopy
 import warnings
 import numpy as np

@@ -368,7 +368,7 @@ class CondProba:
 
     """
 
-    def __init__(self, target_fail_prob: float, num_inputs: int, num_parallel: int = 4,
+    def __init__(self, target_fail_prob: float, num_inputs: int, num_parallel: int = 2,
                  methods: typing.Optional[typing.Union[str, list]] = None, call_args: typing.Optional[dict] = None,
                  target_tol: float = 0.01):
         self.n_inp = num_inputs

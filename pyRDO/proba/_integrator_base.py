@@ -7,7 +7,8 @@ Created on Tue Jul 30 16:05:41 2019
 import numpy as np
 from scipy.stats import norm
 
-class GenericIntegrator():
+
+class GenericIntegrator:
     """ Base class for an integrator
 
         This is used for inheritance only
@@ -51,23 +52,24 @@ class GenericIntegrator():
     Look at the definition of calc_fail_prob in other integrators for further
     information
     """
+
     def __init__(self, multivariate, constraints, constraint_args=None,
                  std_norm_to_orig=None, orig_to_std_norm=None):
         self.mulvar = multivariate
-        self.margs = multivariate.margs[:] # make copy for faster access
+        self.margs = multivariate.margs[:]  # make copy for faster access
         self._n_dim = _sanity_check_margs(self.mulvar.margs)
         if not isinstance(constraints, list):
             constraints = [constraints]
         self.constraints = constraints
         self._n_cons = len(self.constraints)
         self.const_args = _get_const_args(constraint_args, self._n_cons)
-        if std_norm_to_orig is None: # use our own
+        if std_norm_to_orig is None:  # use our own
             self.corr_transform, self.icorr_transform = multivariate.nataf_mats()
             self.u2x = self._u2x
         else:
             self.u2x = std_norm_to_orig
 
-        if orig_to_std_norm is None: # use our own
+        if orig_to_std_norm is None:  # use our own
             self.corr_transform, self.icorr_transform = multivariate.nataf_mats()
             self.x2u = self._x2u
         else:
@@ -81,7 +83,6 @@ class GenericIntegrator():
         self.x_safe = np.empty((0, self._n_dim), dtype=np.float32)
         self.num_eval = 0
 
-
     def const_env(self, input_points):
         """
         Returns the lower envelope of all passed constraints i.e.
@@ -93,14 +94,14 @@ class GenericIntegrator():
         input_points  :  numpy array with the point coordinates. if 1-D, it
                        will be assumed a row array (one point)
         """
-        
+
         if input_points.ndim < 2:
             input_points = input_points.reshape((1, -1))
         self.num_eval += input_points.shape[0]
-        res = np.ones(input_points.shape[0])*np.inf
+        res = np.ones(input_points.shape[0]) * np.inf
         for i_con in range(self._n_cons):
             # if self.const_args[i_con]:
-            cur = self.constraints[i_con](input_points, 
+            cur = self.constraints[i_con](input_points,
                                           *self.const_args[i_con])
             # else:
             #     cur = self.constraints[i_con](input_points)
@@ -142,13 +143,13 @@ class GenericIntegrator():
         in margs
         """
         corr_input = np.dot(std_norm_input, self.corr_transform)
-        if corr_input.ndim < 2: # assuming single dimensionals to be a single point
+        if corr_input.ndim < 2:  # assuming single dimensionals to be a single point
             corr_input = corr_input.reshape((1, self._n_dim))
         orig_input = np.zeros(corr_input.shape, dtype=np.float64)
         for k in range(self._n_dim):
             orig_input[:, k] = self.margs[k].ppf(norm._cdf(corr_input[:, k]))
         return orig_input
-    
+
     def _x2u(self, input_points):
         """
         Transforms the standard normal variable u to the original
@@ -156,12 +157,13 @@ class GenericIntegrator():
         in margs
         """
         ucorr_input = np.dot(input_points, self.icorr_transform)
-        if ucorr_input.ndim < 2: # assuming single dimensionals to be a single point
+        if ucorr_input.ndim < 2:  # assuming single dimensionals to be a single point
             ucorr_input = ucorr_input.reshape((1, self._n_dim))
         std_norm_input = np.zeros(ucorr_input.shape, dtype=np.float64)
         for k in range(self._n_dim):
             std_norm_input[:, k] = norm._ppf(self.margs[k].cdf(ucorr_input[:, k]))
         return std_norm_input
+
 
 def to_safety_index(fail_prob):
     return -norm._ppf(fail_prob)
@@ -186,7 +188,6 @@ def _sanity_check_margs(margs):
     return n_dim
 
 
-
 def _get_const_args(const_args, n_const):
     """
     check and return const_args from the passed value to DirectionalSimulator
@@ -197,7 +198,7 @@ def _get_const_args(const_args, n_const):
         const_args = list(const_args)
     except TypeError:
         const_args = [[const_args]] * n_const
-    
+
     if len(const_args) != n_const:
         err_msg = f"Number of constraints ({n_const}) and the constraint arguments "
         err_msg += f"({len(const_args)}) do not match."

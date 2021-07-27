@@ -13,7 +13,7 @@ Created on Wed Dec 16 01:39:14 2015
 
 @author: Bogoclu
 """
-from __future__ import print_function, division
+
 import functools
 
 import numpy as np

@@ -7,7 +7,7 @@ WARNING: VERY OLD CODE BUT SEEMS TO WORK SO FAR
 @author: Bogoclu
 Last Modified: 02.12.15
 """
-from __future__ import print_function, division
+
 import warnings
 from scipy import stats
 from scipy.linalg import eigh, cholesky

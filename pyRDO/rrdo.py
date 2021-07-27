@@ -3,8 +3,8 @@
 Created on Thu Aug  8 19:42:00 2019
 
 @author: Bogoclu
-
 """
+
 from copy import deepcopy
 import numpy as np
 

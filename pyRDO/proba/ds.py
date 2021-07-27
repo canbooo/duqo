@@ -6,7 +6,7 @@ Created on Tue Apr  4 23:44:58 2017
 
 @author: Bogoclu
 """
-from __future__ import print_function, division
+
 import multiprocessing as mp
 import numpy as np
 from scipy import stats

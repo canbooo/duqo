@@ -7,7 +7,7 @@ WARNING: VERY OLD CODE BUT SEEMS TO WORK SO FAR
 @author: Bogoclu
 """
 
-from __future__ import print_function, division
+
 from scipy import stats
 import numpy as np
 

@@ -6,7 +6,7 @@ Created on Fri Feb 22 15:01:06 2019
 
 @author: Bogoclu
 """
-from __future__ import print_function, division
+
 import typing
 import numpy as np
 
