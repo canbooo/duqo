@@ -84,8 +84,10 @@ upper = [4.5, 4.5]
 n_start = 64
 n_step = 16
 n_stop = 128
-popsize = 100
-maxgens = 100
+popsize = 10  # This should be set to 100 for a reproduction of the results in the paper
+maxgens = 10  # This should be set to 100 for a reproduction of the results in the paper
 ra_methods = ["DS"]
 scale_objs = True
 funs = [scale_styta, scale_square, scale_tricky_cos]  # Model order
+ref = [m["kwargs"]["mean"] if "mean" in m["kwargs"] else (m["kwargs"]["lower_bound"] + m["kwargs"]["upper_bound"]) / 2
+       for m in margs]

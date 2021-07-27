@@ -86,3 +86,4 @@ maxgens = 10  # This should be set to 100 for a reproduction of the results in t
 ra_methods = ["DS"]
 scale_objs = True
 funs = [scale_lin, scale_styta, himmblau]  # Model order
+ref = [m["kwargs"]["mean"] for m in margs]
