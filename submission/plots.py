@@ -121,6 +121,7 @@ def plot_archives(plot_data, ex_name, res_dir, obj_fun, con_fun, lower, upper, r
     ax.set_title("Pareto Designs - Example " + ex_name[-1])
     ax.set_xlabel("x_1")
     ax.set_ylabel("x_2")
+    plt.grid()
     plt.savefig(os.path.join(res_dir, ex_name + "_pareto_designs.png"), bbox_inches="tight", pad_inches=0)
     plt.close(fig)
 
@@ -141,6 +142,7 @@ def plot_pareto_frontiers(plot_data, ex_name, res_dir):
     # plt.gca().yaxis.set_major_locator(plt.NullLocator())
     ax.set_xlabel("f_1(x)")
     ax.set_ylabel("f_2(x)")
+    plt.grid()
     plt.savefig(os.path.join(res_dir, ex_name + "_pareto_frontiers.png"), bbox_inches="tight", pad_inches=0)
     plt.close(fig)
 
