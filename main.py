@@ -8,26 +8,49 @@ from submission.runners.rrdo_adaptive_svr import main as adaptive_svr
 from submission.runners.rrdo_adaptive_mean_gp import main as adaptive_mean_gp
 from submission.runners.rrdo_adaptive_mean_svr import main as adaptive_mean_svr
 from submission.runners.rrdo_mc import main as random_sampling
+from submission.plots import plot_pareto
 
-""" 
-Note that the number of generations and the population size for example 1 is decreased from 100 to 10
-for a faster reproducibility check at code ocean. Please increase the number of iterations to achieve better results
-for all strategies using an optimizer, i.e. all but random_sampling. The definition file for example 1 is found under
-submission/definitions/example1.py
 
-"""
-try:
-    save_dir = os.path.dirname(__file__)
-except:
-    # In case things go wrong in code ocean
-    save_dir = os.path.abspath(".")
-example_name = "ex1"
-# direct(example_name, save_dir=save_dir)
-# direct_short(example_name, save_dir=save_dir)
-# random_sampling(example_name, save_dir=save_dir)
-# stationary_gp(example_name, save_dir=save_dir)
-# stationary_svr(example_name, save_dir=save_dir)
-# adaptive_gp(example_name, save_dir=save_dir)
-# adaptive_svr(example_name, save_dir=save_dir)
-adaptive_mean_gp(example_name, save_dir=save_dir)
-adaptive_mean_svr(example_name, save_dir=save_dir)
+def main(pop_size=5, opt_iters=5):
+    """
+    Run all scripts
+
+    Parameters
+    ----------
+    pop_size : Optional[int]
+        Population size for optimization. Note that it will be x2 for surrogate based strategies and
+        //5 for direct_short
+    opt_iters: Optional[int]
+        Number of optimization iterations after initial population.
+        Note that it will be x2 for surrogate based strategies and //5 for direct_short
+    """
+    try:
+        save_dir = os.path.dirname(__file__)
+    except:
+        # In case things go wrong in code ocean
+        save_dir = os.path.abspath(".")
+
+    for example_name in ["ex3"]:  # "ex1", "ex2", "ex3"
+        # print("Testing Random Strategy")
+        # random_sampling(example_name, save_dir=save_dir)
+        # print("Testing Direct Strategy")
+        # direct(example_name, save_dir=save_dir, force_pop_size=pop_size, force_opt_iters=opt_iters)
+        # print("Testing Direct Short Strategy")
+        # direct_short(example_name, save_dir=save_dir, force_pop_size=pop_size, force_opt_iters=opt_iters)
+        # print("Testing Stationary GP Strategy")
+        # stationary_gp(example_name, save_dir=save_dir, force_pop_size=pop_size, force_opt_iters=opt_iters)
+        # print("Testing Stationary SVR Strategy")
+        # stationary_svr(example_name, save_dir=save_dir, force_pop_size=pop_size, force_opt_iters=opt_iters)
+        print("Testing LoLHR GP Strategy")
+        adaptive_gp(example_name, save_dir=save_dir, force_pop_size=pop_size, force_opt_iters=opt_iters)
+        print("Testing LoLHR SVR Strategy")
+        adaptive_svr(example_name, save_dir=save_dir, force_pop_size=pop_size, force_opt_iters=opt_iters)
+        print("Testing Gu et. Al. (2014) Strategy with GP")
+        adaptive_mean_gp(example_name, save_dir=save_dir, force_pop_size=pop_size, force_opt_iters=opt_iters)
+        print("Testing Gu et. Al. (2014) Strategy with SVR")
+        adaptive_mean_svr(example_name, save_dir=save_dir, force_pop_size=pop_size, force_opt_iters=opt_iters)
+        plot_pareto(example_name, os.path.join(save_dir, "results"))
+
+
+if __name__ == "__main__":
+    main()
