@@ -1,4 +1,4 @@
-# pyRDO: A design uncertainty quantification and optimization framework
+# DUQO: a *D*esign *U*ncertainty *Q*uantification and *O*ptimization framework
 This repo is under construction to be submitted to code ocean for reproducibility. Expect big changes after
 publication on code ocean. Also expect lolhr4ra, i.e. the proposed method for uncertainty quantification.
 
