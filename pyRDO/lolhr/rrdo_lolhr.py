@@ -162,9 +162,6 @@ def lolhr4rrdo(problem, lower, upper, optimizer, model_trainer, step_size,
     if doe_save_path and not doe_save_path.endswith(".npy"):
         doe_save_path += ".npy"
     n_total_dims = int(problem.full_space.inp_space.dims)
-    # tol = 1e-3
-    # if problem.co_fp is not None:
-    #     tol = problem.co_fp.target_fp
     lower_doe, upper_doe = problem.full_space.inp_space.doe_bounds(init_bound_tol,
                                                                    lower,
                                                                    upper)

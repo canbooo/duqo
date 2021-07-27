@@ -64,7 +64,7 @@ n_obj = 1
 n_con = 2
 obj_wgt = None
 target_pf = 1.35e-3
-# target_pf = 1e-2
+
 means = [a * 1e6 for a in [250, 125, 2.5]] + [40]
 covs = [0.3, 0.3, 0.2, 0.1]
 margs = [{"name": "lognorm",
