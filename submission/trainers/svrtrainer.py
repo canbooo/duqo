@@ -43,7 +43,7 @@ def skopt_svr(X, Y):
     return pipe
 
 
-def model_trainer(doe, *funcs, slices=None):
+def model_trainer(doe, *funcs):
     models = []
     doe = doe[np.isfinite(doe).all(1)]
     for i_fun, func in enumerate(funcs):
@@ -54,11 +54,7 @@ def model_trainer(doe, *funcs, slices=None):
         # output = output >= 0
         scaler = StandardScaler()
         output = scaler.fit_transform(output[inds])
-        if slices is None:
-            model = OutputScaledModel(skopt_svr(doe[inds], output[inds].ravel()), scaler)
-        else:
-            model = OutputScaledModel(skopt_svr(doe[inds, slices[i_fun]], output[inds].ravel()), scaler)
-            model = SlicedModel(model, slices[i_fun])
+        model = OutputScaledModel(skopt_svr(doe[inds], output[inds].ravel()), scaler)
         models.append(model)
     return models
 
@@ -71,12 +67,3 @@ class OutputScaledModel:
 
     def predict(self, X):
         return self.scaler.inverse_transform(self.model.predict(X).reshape((X.shape[0], -1)))
-
-
-class SlicedModel:
-    def __init__(self, model, input_slice):
-        self.model = model
-        self.slice = input_slice
-
-    def predict(self, x, *args, **kwargs):
-        return self.model.predict(x[:, self.slice], *args, **kwargs)
