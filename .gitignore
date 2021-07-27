@@ -1,4 +1,6 @@
 *.*
 !.gitignore
 !*.py
-!*.tex
+!LICENSE
+!requirements.txt
+
