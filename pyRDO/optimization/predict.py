@@ -105,7 +105,7 @@ def _default_init(targ_prob: float, acc_max: float, num_inp: int,
     """
     if num_inp < 15:
         integrators = ["DS"]
-        int_args = {"num_starts": 1}
+        int_args = {"num_starts": 1, "multi_region": True}
     else:
         integrators = ["MC"]
         int_args = {"num_starts": 1, "batch_size": 1e5}
@@ -165,7 +165,7 @@ class CondMom:
     """
 
     def __init__(self, full_space: FullSpace, base_doe: typing.Union[bool, np.ndarray] = True,
-                 doe_size: int = 100, obj_wgt: typing.Union[float, list, np.ndarray] = None,
+                 doe_size: int = 100, obj_wgt: typing.Optional[typing.Union[float, list, np.ndarray]] = None,
                  use_std: typing.Union[bool, list] = False):
         self.full_space = full_space
         num_obj = len(self.full_space.obj_inds["sto"])
@@ -368,12 +368,12 @@ class CondProba:
 
     """
 
-    def __init__(self, target_fail_prob: float, num_inputs: int,
-                 num_parallel: int = 2, methods: typing.Union[str, list] = None,
-                 call_args: dict = None, target_tol: float = 0.01):
+    def __init__(self, target_fail_prob: float, num_inputs: int, num_parallel: int = 4,
+                 methods: typing.Optional[typing.Union[str, list]] = None, call_args: typing.Optional[dict] = None,
+                 target_tol: float = 0.01):
         self.n_inp = num_inputs
         num_para = _n_para_chk(num_parallel)
-        cargs = {"num_parallel": num_para}
+        cargs = {"num_parallel": num_para, "multi_region": True}
         if methods is None:
             methods, cargs = _default_init(target_fail_prob, target_tol,
                                            num_inputs, num_para)
