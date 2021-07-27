@@ -451,6 +451,11 @@ def make_doe(num_sample, margs=None, corr_mat=0, num_tries=None,
         Optimized design of experiments matrix with the shape (num_sample, len(margs))
 
     """
+    if margs is None:
+        margs = [uniform(lb, ub - lb)
+                 for lb, ub in zip(lower_bound, upper_bound)]
+    if num_sample == 1:
+        return np.array([[marg.rvs(1) for marg in margs]])
     if num_tries is None:
         if num_sample < 100:
             num_tries = 20000
@@ -458,9 +463,7 @@ def make_doe(num_sample, margs=None, corr_mat=0, num_tries=None,
             num_tries = 2000
     if margs is None and (lower_bound is None or upper_bound is None):
         raise ValueError("Either marginal distributions or bounds must be passed")
-    if margs is None:
-        margs = [uniform(lb, ub - lb)
-                 for lb, ub in zip(lower_bound, upper_bound)]
+
     if lower_bound is not None and upper_bound is not None:
         if np.any(lower_bound >= upper_bound):
             raise ValueError("Lower bound must be strictly smaller than the upper bound")
