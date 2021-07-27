@@ -33,7 +33,7 @@ class MC(GenericIntegrator):
             Defines the accuracy of the estimated failure probability in terms
             of number of total samples
 
-        batch_size : int
+        mc_batch_size : int
             the maximum number of samples to be calculated in one call.
             If 0, the all samples are calculated at once, although note that
             for larger number of samples, memory errors are possible. To avoid
@@ -43,7 +43,7 @@ class MC(GenericIntegrator):
             estimate the maximum number of samples as well as for the convergence
             criteria is converge is True
         
-        max_samples : int or None
+        max_mc_samples : int or None
             Maximum number of samples. If passed, this will override the
             estimation using CoV
         
