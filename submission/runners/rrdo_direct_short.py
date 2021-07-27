@@ -72,8 +72,7 @@ def direct_rrdo(objectives, constraints, num_obj, num_con, n_inp_total,
     if obj_wgt is None:
         num_obj += len(sto_obj_inds)
 
-    opter = InspyredOptimizer(obj_con, lower, upper, num_obj, method="NSGA",
-                              verbose=verbose, scale_objs=scale_objs)
+    opter = InspyredOptimizer(obj_con, lower, upper, method="NSGA", scale_objs=scale_objs, verbose=verbose)
     res = opter.optimize(pop_size=pop_size, max_gens=max_gens,
                          punish_factor=punish_factor,
                          pareto_size=pareto_size, verbose=verbose,

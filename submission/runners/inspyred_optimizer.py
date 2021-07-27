@@ -20,12 +20,9 @@ def make_pareto(obs, maximize=False):
     return [emo.Pareto(obj, maximize=maximize) for obj in obs.tolist()]
 
 
-def _get_method(method, n_objs):
+def _get_method(method):
     if method is None:
-        if n_objs < 2:
-            return "DEA", ec.DEA
-        else:
-            return "NSGA", emo.NSGA2
+        return "NSGA", emo.NSGA2
     method = method.upper()
     if method == "DEA":
         return method, ec.DEA
@@ -46,10 +43,9 @@ def _atleast2d(x):
     return x
 
 
-class InspyredOptimizer():
-    def __init__(self, obj_con, lb, ub, n_objs, method=None,
-                 args=(), maximize=False, obj_con_path="",
-                 scale_objs=False, **kwargs):
+class InspyredOptimizer:
+    def __init__(self, obj_con, lb, ub, method=None, args=(), maximize=False, obj_con_path="", scale_objs=True,
+                 **kwargs):
         """
         
 
@@ -68,20 +64,32 @@ class InspyredOptimizer():
             # it is important to return something even if n_cons = 0
             return np.array(objs), np.array(cons) 
                 
-        lb : TYPE
-            DESCRIPTION.
-        ub : TYPE
-            DESCRIPTION.
-        n_objs : TYPE
-            DESCRIPTION.
-        n_cons : TYPE
-            DESCRIPTION.
-        args : TYPE, optional
-            DESCRIPTION. The default is ().
-        maximize : TYPE, optional
-            DESCRIPTION. The default is False.
-        **kwargs : TYPE
-            DESCRIPTION.
+        lb : Iterable
+            lower optimization bounds
+        ub : Iterable
+            upper optimization bounds
+
+        method : Optional[str]
+            Optimization method to use. Default: 'NSGAII'
+        maximize : bool
+            If True, maximization is assumed. Default: False
+
+        args : Iterable
+            Arguments to pass to obj_con
+
+        obj_con_path : str
+            If passed, objectives and constraints of every candidate are written as arrays to path
+            obj_con_path + "_gen" + str(self.nit) + ".npz"
+            Make sure the directory exists containing the path exists! Default: ""
+
+        scale_objs : bool
+            If True, objectives will be scaled. Useful for problems with constraints, where constraints are enforced
+            using a punishment function
+
+
+        **kwargs: dict
+            Any keyword arguments that should be passed to obj_con
+
 
         Returns
         -------
@@ -92,8 +100,7 @@ class InspyredOptimizer():
         self.bounds = Bounder(lb, ub)
         self.n_dims = len(np.array(lb).ravel())
         self.obj_con = obj_con
-        self.n_objs = n_objs
-        self.method, self.method_ = _get_method(method, n_objs)
+        self.method, self.method_ = _get_method(method)
         self.maximize = maximize
         self.args = args
         self.kwargs = kwargs
@@ -102,6 +109,8 @@ class InspyredOptimizer():
         self.reset()
         self.scale_objs = scale_objs
         self.obj_scales_ = None
+        self.counter_start_pop, self.nfev, self.nit = -1, 0, 0
+        self.start_gen, self.archive, self.punish_factor, self.pareto_size = None, None, 1, 1
 
     def reset(self):
         self.counter_start_pop = -1
@@ -109,7 +118,7 @@ class InspyredOptimizer():
         self.archive = None
 
     def evaluator(self, candidates, args):
-        if self.verbose > 0:
+        if self.verbose:
             t0 = time()
         candidates = np.array(candidates)
         self.nit += 1
@@ -124,7 +133,7 @@ class InspyredOptimizer():
             objs /= self.obj_scales_
         if self.obj_con_path:
             path = self.obj_con_path + "_gen" + str(self.nit) + ".npz"
-            np.savez(path, objs, cons)
+            np.savez(path, candidates, objs, cons)
 
         if cons.size > 0:
             objs = self.punish(objs, cons)
@@ -132,7 +141,7 @@ class InspyredOptimizer():
         if self.verbose:
             # Don't count initial population in prints to avoid confusion
             print("Its.", self.nit - 1, " Evals.", self.nfev, "-", time() - t0, "seconds.")
-            if self.n_objs < 2:
+            if objs.shape[-1] < 2:
                 if self.maximize:
                     best_obj = max(objs)
                 else:
@@ -172,6 +181,23 @@ class InspyredOptimizer():
 
     def optimize(self, pop_size=100, max_gens=100, punish_factor=100,
                  pareto_size=100, verbose=0, start_gen=None):
+        ea = self.init_optimize(pop_size=pop_size, punish_factor=punish_factor, pareto_size=pareto_size,
+                                verbose=verbose, start_gen=start_gen)
+        return self.run_optimize(ea, pop_size=pop_size, max_gens=max_gens)
+
+    def run_optimize(self, ea, pop_size=100, max_gens=100):
+        _ = ea.evolve(generator=self.generator,
+                      evaluator=self.evaluator,
+                      pop_size=pop_size,
+                      maximize=True,  # maximization is handled in make_pareto function...
+                      bounder=self.bounds,
+                      max_generations=max_gens,
+                      neighborhood_size=max(5, pop_size // 20),
+                      max_archive_size=max(2 * pop_size, self.pareto_size),
+                      num_elites=2)
+        return ea.archive
+
+    def init_optimize(self, pop_size=100, punish_factor=100, pareto_size=100, verbose=0, start_gen=None):
         self.reset()
         self.punish_factor = punish_factor
         self.verbose = verbose
@@ -189,13 +215,9 @@ class InspyredOptimizer():
 
         ea = self.method_(prng)
         ea.terminator = [terminators.generation_termination,
-                         terminators.diversity_termination, ]
-        if self.n_objs < 2:
-            ea.terminator = [terminators.generation_termination,
-                             terminators.diversity_termination,
-                             terminators.average_fitness_termination
-                             ]
-        #        ea.variator=ec.variators.simulated_binary_crossover
+                         terminators.diversity_termination,
+                         ]
+
         ea.variator = [variators.blend_crossover,
                        variators.gaussian_mutation]
 
@@ -206,14 +228,4 @@ class InspyredOptimizer():
         # ea.selector = selectors.rank_selection
         if "PSO" in self.method:
             ea.topology = topologies.ring_topology
-        _ = ea.evolve(generator=self.generator,
-                      evaluator=self.evaluator,
-                      pop_size=pop_size,
-                      maximize=True,
-                      bounder=self.bounds,
-                      max_generations=max_gens,
-                      neighborhood_size=max(5, pop_size // 20),
-                      max_archive_size=max(2 * pop_size, pareto_size),
-                      num_elites=2)
-
-        return ea.archive
+        return ea
