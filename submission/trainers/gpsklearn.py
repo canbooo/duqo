@@ -4,23 +4,25 @@ Created on Sun Aug 18 18:58:02 2019
 
 @author: Bogoclu
 """
-import warnings
-from copy import deepcopy
+
 import itertools
 import warnings
 import numpy as np
-from numpy.linalg import LinAlgError
-from scipy.spatial.distance import pdist
 from scipy.optimize import minimize
 from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import KFold
+
 from sklearn.gaussian_process import GaussianProcessRegressor
-from sklearn.gaussian_process.kernels import RBF, RationalQuadratic, WhiteKernel
-from sklearn.gaussian_process.kernels import Matern, DotProduct, ConstantKernel
+from sklearn.gaussian_process.kernels import WhiteKernel, ConstantKernel
 from sklearn.pipeline import Pipeline
-from sklearn.metrics.pairwise import manhattan_distances
-from scipy.linalg import cholesky, cho_solve, solve_triangular
-from scipy.optimize import approx_fprime
+
+
+def model_trainer(doe, *functions):
+    models = []
+    for func in functions:
+        output = func(doe).reshape((doe.shape[0], -1))
+        print(f"Training GP for function {func.__name__} with {output.shape[0]} samples")
+        models.append(fit_gpr(doe, output))
+    return models
 
 
 def fit_gpr(X, y, noise=False, anisotropy=True, kernel_names=None, scale_output=True):
@@ -66,7 +68,6 @@ def fit_gpr(X, y, noise=False, anisotropy=True, kernel_names=None, scale_output=
     kern_names, kernel_classes = _kernelize(kernel_names, anisotropy)
     n_dim = X.shape[1]
     restarts = 50 if X.shape[0] < 256 else 10
-    # theta_start = np.min(pdist(X)) * 100 / X.shape[0]
     theta_start = 1e-3
 
     pipe = _make_sum_pipeline(kern_names, kernel_classes, noise, n_dim,
@@ -161,4 +162,3 @@ def _gp_optimizer(obj_func, initial_theta, bounds):
     # the corresponding value of the target function.
 
     return theta_opt, func_min
-
