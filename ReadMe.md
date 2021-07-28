@@ -1,4 +1,4 @@
-# DUQO: a *D*esign *U*ncertainty *Q*uantification and *O*ptimization framework
+# DUQO: *D*esign *U*ncertainty *Q*uantification and *O*ptimization framework
 This repo is under construction to be submitted to code ocean for reproducibility. Expect big changes after
 publication on code ocean. Also expect lolhr4ra, i.e. the proposed method for uncertainty quantification.
 
@@ -17,7 +17,7 @@ as well as the expectations and variances of the objective functions
 and possible deterministic constraints
 > <img src="https://render.githubusercontent.com/render/math?math=%5Ccolor%7Bred%7D%20c(%5Cmathbf%7Bx%7D)%3A%20%5Cmathbb%7BR%7D%5En%20%5Crightarrow%20%5Cmathbb%7BR%7D">
 with respect to the distribution parameters <img src="https://render.githubusercontent.com/render/math?math=%5Ccolor%7Bred%7D%20%5Ctheta_%7B%5Cmathbf%7BX%7D%7D">
-is required. Besides the input distributions, `pyRDO` takes the objectives <img src="https://render.githubusercontent.com/render/math?math=%5Ccolor%7Bred%7D%20f_i(%5Ccdot)">,
+is required. Besides the input distributions, `duqo` takes the objectives <img src="https://render.githubusercontent.com/render/math?math=%5Ccolor%7Bred%7D%20f_i(%5Ccdot)">,
 the limit states <img src="https://render.githubusercontent.com/render/math?math=%5Ccolor%7Bred%7D%20g_j(%5Ccdot)"> and the constraints 
 <img src="https://render.githubusercontent.com/render/math?math=%5Ccolor%7Bred%7D%20c_k(%5Ccdot)">
 as input and wraps them with `problem.obj_con` to be used by a generic gradient-free optimization algorithm.
