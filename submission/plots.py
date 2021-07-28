@@ -5,7 +5,7 @@ from collections import namedtuple
 import numpy as np
 import matplotlib.pyplot as plt
 
-from pyRDO.lolhr.rrdo_lolhr import is_pareto
+from duqo.lolhr.rrdo_lolhr import is_pareto
 
 PRED_KEYS = {"mc_res": "Random",
              "direct_res": "Direct",

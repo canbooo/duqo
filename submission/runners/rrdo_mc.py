@@ -13,8 +13,8 @@ import sys
 
 import numpy as np
 
-from pyRDO import ConditionalProbability, ConditionalMoment
-from pyRDO import RRDO, UniVar, MultiVar, InputSpace, FullSpace
+from duqo import ConditionalProbability, ConditionalMoment
+from duqo import RRDO, UniVar, MultiVar, InputSpace, FullSpace
 
 
 def direct_rrdo(num_samples, objectives, constraints, num_obj, num_con, n_inp_total,

@@ -15,9 +15,9 @@ import sys
 
 import numpy as np
 
-from pyRDO import ConditionalProbability, ConditionalMoment
-from pyRDO import RRDO, UniVar, MultiVar, InputSpace, FullSpace
-from pyRDO.doe.lhs import make_doe
+from duqo import ConditionalProbability, ConditionalMoment
+from duqo import RRDO, UniVar, MultiVar, InputSpace, FullSpace
+from duqo.doe.lhs import make_doe
 from .inspyred_optimizer import InspyredOptimizer
 from ..trainers.svrtrainer import model_trainer
 

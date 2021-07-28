@@ -16,9 +16,9 @@ import sys
 
 import numpy as np
 
-from pyRDO import ConditionalProbability, ConditionalMoment
-from pyRDO import RRDO, UniVar, MultiVar, InputSpace, FullSpace
-from pyRDO.lolhr import lolhr4rrdo
+from duqo import ConditionalProbability, ConditionalMoment
+from duqo import RRDO, UniVar, MultiVar, InputSpace, FullSpace
+from duqo.lolhr import lolhr4rrdo
 from .inspyred_optimizer import InspyredOptimizer
 from ..trainers.gpsklearn import model_trainer
 
