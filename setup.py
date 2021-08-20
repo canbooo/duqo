@@ -1,16 +1,14 @@
-
+import os
 from setuptools import setup, find_packages
 
-
-
 pkg_name = "duqo"
-package_dirs = {"": pkg_name}
+package_dirs = {pkg_name: pkg_name}
 
-
-with open("requirements.txt", "r") as f:
+base_dir = os.path.dirname(os.path.abspath(__file__))
+with open(os.path.join(base_dir, "requirements.txt"), "r") as f:
     reqs = f.readlines()
 
-with open("ReadMe.md", "r", encoding="utf-8") as fh:
+with open(os.path.join(base_dir, "ReadMe.md"), "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 # inits = [f"{fn}.__init__" for fn in [pkg_name] + [f"{pkg_name}.{mn}" for mn in submodules]]
@@ -28,10 +26,26 @@ setup(name=pkg_name,
           "Bug Tracker": "https://github.com/canbooo/duqo/issues",
       },
       classifiers=[
+          "Intended Audience :: Science/Research",
+          "Intended Audience :: Developers",
+          "Programming Language :: Python",
+          "Topic :: Software Development",
+          "Topic :: Scientific/Engineering",
+          "Operating System :: Microsoft :: Windows",
+          "Operating System :: POSIX",
+          "Operating System :: Unix",
+          "Operating System :: MacOS",
           "Programming Language :: Python :: 3",
+          "Programming Language :: Python :: 3.7",
+          "Programming Language :: Python :: 3.8",
+          "Programming Language :: Python :: 3.9",
           "License :: OSI Approved :: BSD License",
-          "Operating System :: OS Independent",
       ],
       package_dir=package_dirs,
-      packages=find_packages(where=pkg_name),
+      packages=[pkg_name + "." + p for p in find_packages(where=pkg_name)],
+      py_modules=[f"{pkg_name}.__init__"],
+      python_requires=">=3.7",
+      package_data={
+          "": ["requirements.txt", "ReadMe.md"],
+      },
       )
