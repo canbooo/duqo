@@ -60,8 +60,6 @@ def _reduce_to_kmeans(x_f, max_points=10000):
         res = np.append(res, x_f[ids][::step], axis=0)
     return res
 
-    return res
-
 
 def get_dbclusters(fails, sample_weight=True,
                    counts=None, max_num_clusters=np.inf):
