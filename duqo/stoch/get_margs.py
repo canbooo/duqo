@@ -85,7 +85,6 @@ def sp_margs(dist):
 
     #######################################
     #           FRECHET AND WEIBULL missing among others
-    #           Implement in future!
     #########################################
     msg = '%s distribution is not supported yet.' % dist.name
     #        warnings.warn(sWarnMsg)

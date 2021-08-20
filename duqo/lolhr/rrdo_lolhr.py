@@ -8,9 +8,9 @@ import pickle
 import numpy as np
 from scipy.spatial.distance import cdist
 
-from pyRDO.uml.clustering import get_clusters, filter_tiny
-from pyRDO.doe.lhs import inherit_lhs, optimize_doe, find_empty_bins, make_doe
-from pyRDO.optimization.predict import read_integrator_name
+from duqo.uml.clustering import get_clusters, filter_tiny
+from duqo.doe.lhs import inherit_lhs, optimize_doe, find_empty_bins, make_doe
+from duqo.optimization.predict import read_integrator_name
 
 
 def is_pareto(costs, return_mask=True):

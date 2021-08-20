@@ -17,7 +17,7 @@ def oblique_bending(x):
     return 1 - (4 * x[:, 0] / bhfy / x[:, 5]) - (4 * x[:, 1] / bhfy / x[:, 4]) - (x[:, 2] / bhfy) ** 2
 
 
-def obj_fun(x, locs=[0]):
+def obj_fun(x, locs=(0,)):
     if x.ndim < 2:
         x = x.reshape((1, -1))
     objs = np.zeros((x.shape[0], np.array(locs).size))
@@ -27,7 +27,7 @@ def obj_fun(x, locs=[0]):
     return objs
 
 
-def con_fun(x, locs=[0, 1]):
+def con_fun(x, locs=(0, 1)):
     if x.ndim < 2:
         x = x.reshape((1, -1))
     cons = np.zeros((x.shape[0], np.array(locs).size))
@@ -40,11 +40,11 @@ def con_fun(x, locs=[0, 1]):
     return cons
 
 
-def model_obj(x, models=None, locs=[0, 1]):
+def model_obj(x, **kwargs):
     return obj_fun(x)
 
 
-def model_con(x, models=None, locs=[0, 1]):
+def model_con(x, models=None, locs=(0, 1)):
     if x.ndim < 2:
         x = x.reshape((1, -1))
     if not np.isfinite(x).all():

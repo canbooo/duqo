@@ -8,8 +8,8 @@ Created on Thu Aug  8 19:42:00 2019
 from copy import deepcopy
 import numpy as np
 
-from pyRDO.optimization.predict import CondProba, CondMom, read_integrator_name
-from pyRDO.optimization.space import FullSpace, check_shape
+from duqo.optimization.predict import CondProba, CondMom, read_integrator_name
+from duqo.optimization.space import FullSpace, check_shape
 
 
 class RRDO:

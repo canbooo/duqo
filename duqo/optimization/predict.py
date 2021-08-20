@@ -12,8 +12,8 @@ import numpy as np
 from scipy import stats
 
 from .space import FullSpace
-from pyRDO.proba import DS, MC
-from pyRDO.doe.lhs import make_doe
+from duqo.proba import DS, MC
+from duqo.doe.lhs import make_doe
 
 
 def _check_obj_wgt(obj_weights, num_obj):
