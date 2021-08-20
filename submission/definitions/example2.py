@@ -22,7 +22,7 @@ def scale_tricky_cos(x):
     return 7. - np.sum((x / alpha) ** 2 - 5 * np.cos(2 * np.pi * x / alpha), axis=1)
 
 
-def obj_fun(x, locs=[0, 1]):
+def obj_fun(x, locs=(0, 1)):
     if x.ndim < 2:
         x = x.reshape((1, -1))
     objs = np.zeros((x.shape[0], np.array(locs).size))
@@ -34,7 +34,7 @@ def obj_fun(x, locs=[0, 1]):
     return objs
 
 
-def con_fun(x, locs=[0]):
+def con_fun(x, locs=(0,)):
     if x.ndim < 2:
         x = x.reshape((1, -1))
     cons = np.zeros((x.shape[0], np.array(locs).size))
@@ -44,7 +44,7 @@ def con_fun(x, locs=[0]):
     return cons
 
 
-def model_obj(x, models=None, locs=[0]):
+def model_obj(x, models=None, locs=(0,)):
     if x.ndim < 2:
         x = x.reshape((1, -1))
     if not np.isfinite(x).all():
@@ -58,7 +58,7 @@ def model_obj(x, models=None, locs=[0]):
     return objs
 
 
-def model_con(x, models=None, locs=[0]):
+def model_con(x, models=None, locs=(0,)):
     if x.ndim < 2:
         x = x.reshape((1, -1))
     if not np.isfinite(x).all():
@@ -88,7 +88,7 @@ popsize = 100
 maxgens = 100
 ra_methods = ["MC"]
 scale_objs = True
-opt_inps = None # Everything is an opt_inp
+opt_inps = None  # Everything is an opt_inp
 funs = [scale_styta, scale_square, scale_tricky_cos]  # Model order
 ref = [m["kwargs"]["mean"] if "mean" in m["kwargs"] else (m["kwargs"]["lower_bound"] + m["kwargs"]["upper_bound"]) / 2
        for m in margs]

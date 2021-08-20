@@ -6,24 +6,28 @@ Created on Sat Jul 11 19:12:16 2020
 """
 import numpy as np
 
+
 def scale_styta(x):
-        if x.ndim < 2:
-            x = x.reshape((1, -1))
-        return np.sum(x**4 -16*x**2 + 5*x, axis=1) / 180
+    if x.ndim < 2:
+        x = x.reshape((1, -1))
+    return np.sum(x ** 4 - 16 * x ** 2 + 5 * x, axis=1) / 180
+
 
 def scale_lin(x):
     if x.ndim < 2:
         x = x.reshape((1, -1))
     return (5 * np.sqrt(x.shape[1]) - x.sum(1)) / 7
 
+
 def himmblau(x, gamma=1):
     if x.ndim < 2:
         x = x.reshape((1, -1))
-    res = ((x[:, 0]**2 + x[:, 1]) /1.81 - 11)**2
-    res += ((x[:, 0] + x[:, 1]**2) /1.81 - 7)**2
-    return res - 45*gamma
+    res = ((x[:, 0] ** 2 + x[:, 1]) / 1.81 - 11) ** 2
+    res += ((x[:, 0] + x[:, 1] ** 2) / 1.81 - 7) ** 2
+    return res - 45 * gamma
 
-def obj_fun(x, locs=[0, 1]):
+
+def obj_fun(x, locs=(0, 1)):
     if x.ndim < 2:
         x = x.reshape((1, -1))
     objs = np.zeros((x.shape[0], np.array(locs).size))
@@ -35,7 +39,7 @@ def obj_fun(x, locs=[0, 1]):
     return objs
 
 
-def con_fun(x, locs=[0]):
+def con_fun(x, locs=(0, )):
     if x.ndim < 2:
         x = x.reshape((1, -1))
     cons = np.zeros((x.shape[0], np.array(locs).size))
@@ -44,7 +48,8 @@ def con_fun(x, locs=[0]):
             cons[:, i_loc] = himmblau(x)
     return cons
 
-def model_obj(x, models=None, locs=[0, 1]):
+
+def model_obj(x, models=None, locs=(0, 1)):
     if x.ndim < 2:
         x = x.reshape((1, -1))
     if not np.isfinite(x).all():
@@ -58,7 +63,7 @@ def model_obj(x, models=None, locs=[0, 1]):
     return objs
 
 
-def model_con(x, models=None, locs=[0]):
+def model_con(x, models=None, locs=(0, )):
     if x.ndim < 2:
         x = x.reshape((1, -1))
     if not np.isfinite(x).all():
@@ -68,6 +73,7 @@ def model_con(x, models=None, locs=[0]):
         if loc == 0:
             cons[:, i_loc] = models[2].predict(x).ravel()
     return cons
+
 
 n_var = 2
 n_obj = 2
@@ -85,6 +91,6 @@ popsize = 100
 maxgens = 100
 ra_methods = ["DS"]
 scale_objs = True
-opt_inps = None # Everything is an opt_inp
+opt_inps = None  # Everything is an opt_inp
 funs = [scale_lin, scale_styta, himmblau]  # Model order
 ref = [m["kwargs"]["mean"] for m in margs]
