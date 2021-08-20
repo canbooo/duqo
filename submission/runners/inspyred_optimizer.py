@@ -13,7 +13,7 @@ from inspyred.ec import terminators, variators, replacers, Bounder, emo
 from inspyred.swarm import PSO, topologies
 from scipy.stats import uniform
 
-from pyRDO.doe.lhs import make_doe
+from duqo.doe.lhs import make_doe
 
 
 def make_pareto(obs, maximize=False):
