@@ -2,6 +2,6 @@
 !.gitignore
 !*.py
 !LICENSE
-!requirements.txt
+!*requirements.txt
 !ReadMe.md
 
