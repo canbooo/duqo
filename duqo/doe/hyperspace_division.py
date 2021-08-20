@@ -68,7 +68,7 @@ def _heuristic_fekete(n_dim, n_dir, max_iterations=100, tolerance=1e-18):
         forces = base_points[:, np.newaxis, :] * (forces[:, :, np.newaxis])
         inds = np.arange(n_dir)
         forces = forces.sum(0) - forces[inds, inds, :]
-        # substraction removes the diagonals from the distance matrix
+        # subtraction removes the diagonals from the distance matrix
         # which would have infinite magnitude
         amps = np.linalg.norm(forces, axis=1, keepdims=True)
         amps[amps < 5e-8] = 5e-8

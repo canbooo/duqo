@@ -186,7 +186,7 @@ class UniVar:
     @property
     def moments(self):
         """ Mean and Standard deviation"""
-        return (self._mu, self._std)
+        return self._mu, self._std
 
     @moments.setter
     def moments(self, moments):
@@ -202,14 +202,14 @@ class UniVar:
         return f"UniVar: {self.name} - Mean: {self.mean:.2e}  Std. Dev: {self.std:.2e}"
 
 
-class MultiVar():
+class MultiVar:
     """
     A Multivariate stochastic model.
 
     Parameters
     ----------
 
-    distribution : list
+    univars : list
         A list of Distribution instances
 
     corr_mat : np.ndarray
@@ -268,8 +268,8 @@ class MultiVar():
         """
         lower, upper = [], []
         for dist in self.margs:
-            lower.append()
-            upper.append()
+            lower.append(dist.ppf(prob_tol))
+            upper.append(dist.ppf(1 - prob_tol))
         return lower, upper
 
     @property
