@@ -312,7 +312,7 @@ class RRDO:
             for int_lib in workers:
                 estimator = int_lib(cur_mv, [self.full_space.sto_con], [x_cur])
                 try:
-                    res = estimator.calc_fail_prob(**pp_int.call_args)[:4]
+                    res = estimator.integrate(**pp_int.call_args)[:4]
                 except ValueError:
                     pass
                 else:

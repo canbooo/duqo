@@ -12,6 +12,8 @@ Created on Mon May  2 21:28:53 2016
 
 from copy import deepcopy
 import warnings
+from typing import Optional, Union, Iterable
+
 import numpy as np
 from scipy.special import comb as combine
 from scipy.stats import uniform
@@ -421,8 +423,9 @@ def inherit_lhs(num_sample, empty_bins, bounds_l, bounds_u):
     return frees * (ub - lb) + lb
 
 
-def make_doe(num_sample, margs=None, corr_mat=0, num_tries=None,
-             lower_bound=None, upper_bound=None, verbose=0):
+def make_doe(num_sample: int, margs: Optional[Iterable]=None, corr_mat: Union[int, float, np.ndarray] = 0,
+             num_tries: Optional[int] = None, lower_bound: Optional[Iterable[Union[int, float]]] = None,
+             upper_bound: Optional[Iterable[Union[int, float]]] = None, verbose: int =0):
     """
     Makes an LHS with desired distributions and correlation
 
@@ -438,16 +441,22 @@ def make_doe(num_sample, margs=None, corr_mat=0, num_tries=None,
         Correlation matrix. If an array, it must be symmetrical with shape=(n_dim, n_dim). If scalar, the whole matrix
         except the diagonal will be filled with this value. Default is 0 meaning no correlation.
 
+    num_tries: Optional[int]
+        Number of optimization steps to use. If not passed, it will be chosen according to the doe size.
+
     lower_bound : np.ndarray
         Lower bounds. Shape = (n_dim,)
 
     upper_bound : np.ndarray
         Upper bounds. Shape = (n_dim,)
 
+    verbose : int
+        Controls the level of verbosity
+
 
     Returns
     -------
-    doe_final : 2-D numpy.ndarray
+    doe_final : np.ndarray(shape=(num_samples, num_dims))
         Optimized design of experiments matrix with the shape (num_sample, len(margs))
 
     """

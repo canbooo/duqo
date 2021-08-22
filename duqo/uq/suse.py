@@ -3,8 +3,8 @@ import warnings
 import numpy as np
 from scipy import stats
 
-from pyRDO.proba._integrator_base import GenericIntegrator, to_safety_index
-from pyRDO.doe.lhs import make_doe
+from duqo.uq.integrator import GenericIntegrator, to_safety_index
+from duqo.doe.lhs import make_doe
 
 
 class SUSE(GenericIntegrator):
@@ -21,16 +21,10 @@ class SUSE(GenericIntegrator):
     #
     #     super(SUSE, self).__init__(multivariate, constraints, constraint_args, std_norm_to_orig, orig_to_std_norm)
 
-    def calc_fail_prob(self, init_doe=None, prob_tol=1e-9, num_subset_points: int = 1e3,
-                       inter_prob: float = 0.1, max_subsets=50, post_proc: bool = False,
-                       init_var=1., use_covariate=True, **kwargs):
+    def integrate(self, num_parallel=2, post_processing=True, probability_tolerance: int = 1e-8, **kwargs: float):
         """ Estimate the probability of failure P(F)
         Parameters
         ----------
-
-        prob_tol : float
-            Defines the accuracy of the estimated failure probability in terms
-            of number of total samples. Does not have an effect yet
 
         batch_size : int
             the maximum number of samples to be calculated in one call.
@@ -41,12 +35,6 @@ class SUSE(GenericIntegrator):
         max_samples : int or None
             Maximum number of samples. If passed, this will override the
             estimation using CoV
-
-        post_proc : bool
-            If true, sampling points will be accumulated to the attributes
-            x_lsf, x_safe and x_fail and also will return mpp, conv_mu, conv_var,
-            conv_x
-
 
         converge : bool
             If True, a convergence check will be done after each batch.
@@ -98,22 +86,22 @@ class SUSE(GenericIntegrator):
             print("setting num_parallel to 1")
             self._n_parallel = 1
         self._post_proc = post_proc
-        num_subset_points = int(num_subset_points)
+        probability_tolerance = int(probability_tolerance)
         assert 0 < inter_prob < 1
 
         # Generate initial population
         if init_doe is None:
             # mv_norm = stats.multivariate_normal(mean=np.zeros(self._n_dim)) # Why not an lhs
             # doe = mv_norm.rvs(num_subset_points)
-            doe = make_doe(num_subset_points, [stats.norm() for _ in range(self._n_dim)], num_tries=10)
+            doe = make_doe(probability_tolerance, [stats.norm() for _ in range(self._n_dim)], num_tries=10)
         else:
             doe = init_doe
-            if doe.shape[0] != num_subset_points:
+            if doe.shape[0] != probability_tolerance:
                 warnings.warn(f"Mismatch between the passed doe shape {doe.shape} "
-                              f"and num_subset_points ({num_subset_points}).")
+                              f"and num_subset_points ({probability_tolerance}).")
 
         outputs = self.const_env_stdnorm(doe)
-        num_seeds = int(np.ceil(num_subset_points * inter_prob))
+        num_seeds = int(np.ceil(probability_tolerance * inter_prob))
         doe_cur, outputs_cur, g_cur = _get_worst_n(doe, outputs, num_seeds)
         if g_cur <= 0:  # Failure region has already been reached
             fails = outputs < 0
@@ -127,11 +115,11 @@ class SUSE(GenericIntegrator):
         alphas = []
         subset_counter = 0
         fail_probs = [inter_prob]
-        deltas = [_subset_cov(inter_prob, num_subset_points)]
+        deltas = [_subset_cov(inter_prob, probability_tolerance)]
         lamb = 0.6  # recommended initial value for lambda
         while g_cur > 0 and subset_counter <= max_subsets:
             # np.random.shuffle(doe_cur)
-            doe_cur, outputs_cur, lamb = parallel_adaptive_conditional_sampling(doe_cur, outputs_cur, num_subset_points,
+            doe_cur, outputs_cur, lamb = parallel_adaptive_conditional_sampling(doe_cur, outputs_cur, probability_tolerance,
                                                                                 self.const_env_stdnorm, g_cur, lamb,
                                                                                 init_var)
             doe_cur = doe_cur.reshape(-1, self._n_dim)
@@ -149,7 +137,7 @@ class SUSE(GenericIntegrator):
             g_cur = np.copy(g_next)
             gamma = _corr_factor_gamma(indicators, fail_probs[-1])
             # print(gamma)
-            deltas.append(_subset_cov(fail_probs[-1], num_subset_points, gamma))
+            deltas.append(_subset_cov(fail_probs[-1], probability_tolerance, gamma))
             outputs_cur = outputs_next.copy()
             subset_counter += 1
             if g_cur == 0:

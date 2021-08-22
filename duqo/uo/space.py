@@ -8,7 +8,7 @@ import typing
 
 import numpy as np
 
-from duqo.variables import UniVar, MultiVar
+from duqo.variables import UniVar, MultiVariate
 
 
 def _sane_inds(ids, n_ele):
@@ -81,12 +81,12 @@ class InputSpace:
 
     """
 
-    def __init__(self, mulvar: MultiVar, num_inp: int = None, opt_inps: list = None,
+    def __init__(self, mulvar: MultiVariate, num_inp: int = None, opt_inps: list = None,
                  sto_inps: list = None, sto_obj_inps: list = None,
                  sto_con_inps: list = None):
         self.mulvar = mulvar
         if num_inp is None:
-            num_inp = len(mulvar.dists)
+            num_inp = len(mulvar.marginals)
         self.dims = num_inp
         if num_inp < 1:
             raise ValueError("At least one input is required")
@@ -110,9 +110,9 @@ class InputSpace:
         self.inds = _make_bool_d(self.inds, num_inp)
 
         self._cov_i, self._covs = [], []
-        for dist in self.mulvar.dists:
-            if dist.var_coef is not None:
-                self._covs.append(dist.var_coef)
+        for dist in self.mulvar.marginals:
+            if dist.variation_coefficient is not None:
+                self._covs.append(dist.variation_coefficient)
                 self._cov_i.append(True)
             else:
                 self._covs.append(0.)  # So it raises an error, if one tries
@@ -286,7 +286,7 @@ class InputSpace:
 
         Returns
         -------
-        mulvar : MultiVar
+        mulvar : MultiVariate
             Multivariate at the optimization point x_opt
         """
         x_opt = check_shape(x_opt, self.inds["opt"].sum(), "opt_mulvar")
@@ -316,7 +316,7 @@ class InputSpace:
         """
         x_opt = check_shape(x_opt, self.inds["opt"].sum(), "sto_obj_doe")
         opt_mv = self.opt_mulvar(x_opt, "sto_obj")
-        return opt_mv.opt_lhs(num_points=num_points, num_iters=num_iters)
+        return opt_mv.optimized_lhs(num_point=num_points, num_iteration=num_iters)
 
     def sto_obj_base_doe(self, num_points=100, num_iters=5000):
         """ Get a design of experiments at x_opt
@@ -350,9 +350,9 @@ class InputSpace:
         # Handle Lognormal as uniform to use as probabilities
         scaled_mv = self.mulvar.new(mu, sig, mv_inds)
         for ind in inds:
-            scaled_mv.dists[ind] = UniVar("uniform", lower_bound=0.0,
-                                          upper_bound=1.0)
-        return scaled_mv.opt_lhs(num_points=num_points, num_iters=num_iters)
+            scaled_mv.marginals[ind] = UniVar("uniform", lower_bound=0.0,
+                                              upper_bound=1.0)
+        return scaled_mv.optimized_lhs(num_point=num_points, num_iteration=num_iters)
 
     def mv_inds(self, domain="sto_obj"):
         """Gets the mv indexes of a given domain"""
@@ -407,7 +407,7 @@ class FullSpace():
 
     """
 
-    def __init__(self, inp_space: typing.Union[MultiVar, InputSpace], num_obj: int, num_con: int,
+    def __init__(self, inp_space: typing.Union[MultiVariate, InputSpace], num_obj: int, num_con: int,
                  obj_fun=None, obj_arg=(), con_fun=None, con_arg=(),
                  sto_objs: list = None, sto_cons: list = None):
         if num_obj + num_con < 1:
@@ -418,7 +418,7 @@ class FullSpace():
             raise TypeError("con_fun must be defined for num_con > 0.")
 
         self.dims = (num_obj, num_con)
-        if isinstance(inp_space, MultiVar):
+        if isinstance(inp_space, MultiVariate):
             self.inp_space = InputSpace(inp_space)
         else:
             self.inp_space = inp_space

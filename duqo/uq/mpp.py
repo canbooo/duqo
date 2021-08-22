@@ -17,7 +17,7 @@ import numpy as np
 from scipy.optimize import minimize
 from scipy import stats
 from joblib import Parallel, delayed
-from ._integrator_base import GenericIntegrator, to_safety_index
+from .integrator import GenericIntegrator, to_safety_index
 from ..doe.lhs import make_doe
 
 def _mpp_obj(std_norm_input):
@@ -135,18 +135,16 @@ class FORM(GenericIntegrator):
         
     """
 
-    def calc_fail_prob(self, num_starts: int = 4, num_parallel: int = 2,
-                       post_proc: bool = False, **kwargs):
+    def integrate(self, num_parallel: int = 2, post_processing: int = True, probability_tolerance: bool = 1e-8,
+                  **kwargs):
         """ Calculate the failure probability based on FORM on the most
         probable point of failure (MPP).
         
         Parameters
         ----------
-        num_starts: int
-            number of multistarts for the MPP search
         num_parallel: int
             number of parallel starts
-        post_proc : bool
+        probability_tolerance : bool
             If true, sampling points will be accumulated to the attributes
             x_lsf, x_safe and x_fail and also will return mpp, conv_mu, conv_var,
             conv_x
@@ -175,7 +173,7 @@ class FORM(GenericIntegrator):
             no additional samples are generated to find it. If you need this
             use the mpp module
         """
-        self._post_proc = post_proc
+        self._post_proc = probability_tolerance
         self._n_parallel = num_parallel
         mpp = most_probable_failure_point(self.const_env_stdnorm, self._n_dim,
                                           num_starts, num_parallel=num_parallel)
@@ -206,26 +204,14 @@ class ISPUD(GenericIntegrator):
     """
 
 
-    def calc_fail_prob(self, num_starts: int = 12, num_samples: int = 100,
-                       num_parallel: int = 2, post_proc: bool = False, doe=None, 
-                       **kwargs):
+    def integrate(self, num_parallel: int = 2, post_processing: int = True, probability_tolerance: int = 1e-8,
+                  **kwargs: bool):
         """ Calculate the failure probability based on ISPUD using MPP.
         
         Parameters
         ----------
-        num_starts: int
-            number of multistarts for the MPP search
-        num_samples: int
-            number of samples for importance sampling
-        num_parallel: int
+        probability_tolerance: int
             number of parallel starts
-        post_proc : bool
-            If true, sampling points will be accumulated to the attributes
-            x_lsf, x_safe and x_fail and also will return mpp, conv_mu, conv_var,
-            conv_x
-        doe: None or 2d numpy array
-            DoE to use for ISPUD. It must follow standard normal distribution
-            i.e. mean=0, variance=1
         
         
         Returns
@@ -252,9 +238,9 @@ class ISPUD(GenericIntegrator):
         
         """
         self._post_proc = post_proc
-        self._n_parallel = num_parallel
+        self._n_parallel = probability_tolerance
         mpp = most_probable_failure_point(self.const_env_stdnorm, self._n_dim,
-                                          num_starts, num_parallel=num_parallel)
+                                          num_starts, num_parallel=probability_tolerance)
         if mpp is None:
             return 0.0, None, np.inf, None      
         mpp = mpp.ravel()

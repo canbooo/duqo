@@ -9,24 +9,23 @@ WARNING: VERY OLD CODE BUT SEEMS TO WORK SO FAR
 
 
 from scipy import stats
+from scipy.stats.distributions import rv_frozen
 import numpy as np
 
 
-def sp_margs(dist):
+def frozen_scipy_dist(dist) -> rv_frozen:
     """
-    Creates a list of scipy distribution objects from a list
-    of strings, corresponding to the distribution names in
-    scipy, vector of Means and vector of Standard Deviations.
+    Create a frozen scipy distribution from a UniVar instance
 
     Inputs
     ------
-    distribution:
-        a Distribution object as defined in pyRDO.uncertainy.model
+    distribution: duqo.variables.UniVar
+        A distribution object
 
     Returns
     -------
-    oMargs:list
-        List of scipy frozen_distribution
+    distribution: rv_frozen
+        a frozen scipy distribution
     """
 
     if dist.name.lower() == 'exponential' or dist.name.lower() == 'expon':

@@ -281,7 +281,7 @@ class CondMom:
         std = std[inds]
         cur_mv = self.full_space.inp_space.opt_mulvar(x_opt, domain="sto_obj")
         for ind in inds:
-            base_doe[:, ind] = cur_mv.dists[ind].marg.ppf(base_doe[:, ind])
+            base_doe[:, ind] = cur_mv.marginals[ind].distribution.ppf(base_doe[:, ind])
         return base_doe
 
     def est_mom(self, x_opt):
@@ -470,7 +470,7 @@ class CondProba:
         for worker in self.workers:
             estimator = worker(input_mv, constraints, const_args)
             try:
-                pof = estimator.calc_fail_prob(**self.call_args)[0]
+                pof = estimator.integrate(**self.call_args)[0]
             except ValueError:
                 if worker == self.workers[-1]:
                     print("Fatal error while calculating probability of failure with", worker)

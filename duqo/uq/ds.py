@@ -14,7 +14,7 @@ from scipy.optimize import brentq
 from joblib import Parallel, delayed
 
 from ..doe.hyperspace_division import fekete_points
-from ._integrator_base import GenericIntegrator, to_safety_index
+from .integrator import GenericIntegrator, to_safety_index
 
 
 def _sanity_check_calc(multi_region, num_presearch, prob_tol, num_parallel,
@@ -314,9 +314,7 @@ class DS(GenericIntegrator):
             mpp = np.empty((0, self._n_dim))
         return mpp, conv_mu, conv_var, conv_x
 
-    def calc_fail_prob(self, multi_region=False, num_presearch=20, directions=None,
-                       prob_tol=1e-8, num_parallel=2, post_proc=False,
-                       verbose: int = 0, **kwargs):
+    def integrate(self, num_parallel=2, post_processing=True, probability_tolerance=1e-8, **kwargs):
         """
         Main function to call for calculating the probability of failure.
         As the problem is defined during the init, this only takes the
@@ -326,17 +324,7 @@ class DS(GenericIntegrator):
         Parameters
         ----------
 
-        multi_region : bool
-            continue to search for safe and unsafe domains beyond the first
-            found one. The estimation will be more accurate but will require
-            much more samples. Using this without a fast model is not recommended,
-            thus defaults to None
-
-        num_presearch : int
-            number of search points for each direction. Should be decreased for
-            simpler functions. (minimum of 6 is recommended)
-
-        directions : int or 2-D numpy.ndarray
+        probability_tolerance : int or 2-D numpy.ndarray
             if None, fekete points with a default number of directions are
             produced. Note that this method becomes expensive for n_dim > 15
             if this is an integer, fekete points with that number of directions
@@ -346,15 +334,6 @@ class DS(GenericIntegrator):
             to n_dim is non linear for most examples. The default will work up
             to 5-6 dimensions depending on the problem. Higher dimensional problems
             require more directions for an accurate estimation.
-
-        prob_tol : float
-            Defines the accuracy of the estimated failure probability in terms
-            of number of total samples
-
-        post_proc : bool
-            If true, sampling points will be accumulated to the attributes
-            x_lsf, x_safe and x_fail and also will return mpp, conv_mu, conv_var,
-            conv_x
 
         num_parallel : int
             number of parallel processes. Reduces performance for values more
@@ -395,7 +374,7 @@ class DS(GenericIntegrator):
                            num_parallel, post_proc)
 
         self._post_proc = post_proc
-        self.fekete = np.array(_sane_fekete_points(directions, self._n_dim),
+        self.fekete = np.array(_sane_fekete_points(probability_tolerance, self._n_dim),
                                dtype=np.float32)
         self.safe_design, self._g0 = self._get_start()
         n_cores = mp.cpu_count()  # Using at least one less core
@@ -411,7 +390,7 @@ class DS(GenericIntegrator):
             print("Starting limit state search...")
         radii = self._get_zero_plane(multi_region, prob_tol, num_presearch)
         # Calculate the Probability of Failure for each direction
-        fail_prob = 1 - stats.chi2._cdf(radii ** 2, df=self._n_dim)
+        fail_prob = 1 - stats.chi2._cdf(radii ** 2, df=self.limit_state_function.num_function)
         if not self.safe_design:
             fail_prob = 1 - fail_prob
         fail_prob_mu = np.mean(fail_prob)

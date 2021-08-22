@@ -12,11 +12,11 @@ from scipy.optimize import brentq
 import pandas as pd
 
 from ..doe.lhs import inherit_lhs, optimize_doe, find_empty_bins, make_doe
-from ._integrator_base import GenericIntegrator
+from .integrator import GenericIntegrator
 from .ds import DS
 from .mc import MC
-from pyRDO.proba.suse_old.suse_old import SUSE
-from .clustering import get_dbclusters
+from duqo.uq.suse import SUSE
+from duqo.misc.clustering import memory_safe_get_clusters
 from sklearn.neighbors import NearestNeighbors
 
 def _get_default_integrator(num_dims, prob_tol):
@@ -73,12 +73,7 @@ class RAuAML(GenericIntegrator):
     the method from [1]. 
     """
 
-    def calc_fail_prob(self, model_trainer, start_doe=None,
-                       step_size=4, model_trainer_args=(),
-                       max_evals=np.inf, convergence_test="t-test",
-                       prob_tol: float = 1e-6,
-                       post_proc: bool = False, integrator=None,
-                       **kwargs):
+    def integrate(self, num_parallel=2, post_processing=True, probability_tolerance=1e-8, **kwargs):
         """
         Model list output from model_trainer will be passed as the last argument
         to the passed limit state functions, which should be in form
@@ -90,18 +85,10 @@ class RAuAML(GenericIntegrator):
 
         Parameters
         ----------
-        model_trainer : TYPE
-            DESCRIPTION.
-        start_doe : TYPE, optional
-            DESCRIPTION. The default is None.
-        step_size : TYPE, optional
+        probability_tolerance : TYPE, optional
             DESCRIPTION. The default is 4.
-        prob_tol : float, optional
-            DESCRIPTION. The default is 1e-6.
         num_samples : int, optional
             DESCRIPTION. The default is 4.
-        post_proc : bool, optional
-            DESCRIPTION. The default is False.
         **kwargs : TYPE
             DESCRIPTION.
 
@@ -166,12 +153,12 @@ class RAuAML(GenericIntegrator):
             if isconv:
                 # Message printed during isconv check
                 break
-            if max_evals - n_samps < step_size:
+            if max_evals - n_samps < probability_tolerance:
                 print("Maximum allowed number of iterations has been reached.")
                 break
             lower, upper = self.mulvar.get_probability_bounds(prob_tol)
             cur_doe = adapt_doe(lower, upper, cur_doe, inter.x_lsf, inter.x_fail,
-                                num_samples=step_size, prob_tol=prob_tol,
+                                num_samples=probability_tolerance, prob_tol=prob_tol,
                                 return_update_only=False,
                                 **kwargs)
         self.const_args = base_args
@@ -190,9 +177,8 @@ class RAuAML(GenericIntegrator):
             prob_tol = prob_tol * kwargs.get("CoV", 0.1) ** -2
         if ttest:
             kwargs["converge"] = False
-        fail_prob, fail_prob_var = inter.calc_fail_prob(prob_tol=prob_tol, multi_region=True,
-                                                        post_proc=True, num_parallel=1,
-                                                        **kwargs)[:2]
+        fail_prob, fail_prob_var = inter.integrate(num_parallel=1, probability_tolerance=prob_tol,
+                                                   multi_region=True, post_proc=True, **kwargs)[:2]
         return fail_prob, fail_prob_var, inter
 
 
@@ -366,9 +352,8 @@ def get_clusters(fails, lsf, max_num_clusters, base_tol=None, max_points=None):
     # dist_size = calc_size_gb(x_f.shape[0])
     # print(dist_size, x_f.shape)
     try:
-        labels, uniques = get_dbclusters(x_f, sample_weight=True,
-                                         counts=counts,
-                                         max_num_clusters=max_num_clusters)
+        labels, uniques = memory_safe_get_clusters(x_f, sample_weight=True, counts=counts,
+                                                   max_num_clusters=max_num_clusters)
     except (SystemError, MemoryError):
         return None, None, None
     return x_f, labels, uniques
