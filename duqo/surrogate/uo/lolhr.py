@@ -8,7 +8,7 @@ import pickle
 import numpy as np
 from scipy.spatial.distance import cdist
 
-from duqo.uml.clustering import get_clusters, filter_tiny
+from duqo.misc.clustering import memory_safe_get_clusters, filter_tiny
 from duqo.doe.lhs import inherit_lhs, optimize_doe, find_empty_bins, make_doe
 from duqo.optimization.predict import read_integrator_name
 
@@ -306,7 +306,7 @@ def adapt_doe(lower, upper, doe, x_lsf, x_fail=None, num_samples=4,
 
 
 def get_cluster_bounds(lower, upper, fails, lsf, n_samples, n_old_samples):
-    x_f, labels, class_names = get_clusters(fails, lsf, n_samples)
+    x_f, labels, class_names = memory_safe_get_clusters(fails, lsf, n_samples)
     if x_f is None:
         print("Failed to detect clusters")
         return None, [-1], [n_samples]

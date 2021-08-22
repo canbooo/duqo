@@ -8,7 +8,7 @@ import typing
 
 import numpy as np
 
-from duqo.stoch.model import UniVar, MultiVar
+from duqo.variables import UniVar, MultiVar
 
 
 def _sane_inds(ids, n_ele):

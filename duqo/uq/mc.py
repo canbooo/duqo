@@ -6,8 +6,8 @@ Created on Fri Feb 22 15:01:06 2019
 
 @author: Bogoclu
 """
-
-import typing
+import warnings
+from typing import Union
 import numpy as np
 
 
@@ -21,8 +21,8 @@ class MC(GenericIntegrator):
     of failure for avoiding memory problems
     """
 
-    def calc_fail_prob(self, prob_tol: float = 1e-4, mc_batch_size: typing.Union[int, float] = 1e5,
-                       CoV: float = 0.1, max_mc_samples: typing.Union[int, float] = None,
+    def calc_fail_prob(self, prob_tol: float = 1e-4, mc_batch_size: Union[int, float] = 1e5,
+                       CoV: float = 0.1, max_mc_samples: Union[int, float] = None,
                        post_proc: bool = False, doe=None,
                        converge: bool = True, **kwargs):
         """ Estimate the probability of failure P(F)
@@ -99,6 +99,7 @@ class MC(GenericIntegrator):
         is_corr = self.mulvar.is_corr
         self._post_proc = post_proc
         corr_mat = self.mulvar.transform_mats()[0]
+        fails = None
         if doe is not None:
             fails = self.const_env(doe) < 0
             fail_prob = np.mean(fails)
@@ -116,7 +117,6 @@ class MC(GenericIntegrator):
             fail_prob_var = 0
             fp_vars, batch_sizes = np.empty(0), np.empty(0)
             while total_samples < sample_limit:
-                
                 remaining_samples = sample_limit - total_samples
                 if remaining_samples < mc_batch_size:
                     mc_batch_size = remaining_samples
@@ -137,12 +137,12 @@ class MC(GenericIntegrator):
                 fail_prob_var = np.sum(fp_vars * mc_batch_size / batch_sizes.sum())
                 if mc_batch_size < sample_limit:
                     print(f"{total_samples:.4e}, samples computed")
-                if converge and fail_prob > 0 :
+                if converge and fail_prob > 0:
                     if fail_prob_var / fail_prob <= CoV:
                         break
             fail_prob = fail_prob / total_samples
         safety_index = to_safety_index(fail_prob)
-        mpp = None
+        mpp = np.empty((0, self._n_dim))
         if post_proc:
             mpp, conv_mu, conv_var, conv_x = self._gen_post_proc(fails)
             return fail_prob, fail_prob_var, safety_index, mpp, conv_mu, conv_var, conv_x
@@ -152,17 +152,20 @@ class MC(GenericIntegrator):
         """ Generate post processing. Will only process the last batch
         Use calc_fail_prob(..., post_proc=True) instead of this.
         """
+        if fails is None or len(fails) < 1:
+            warnings.warn("No samples were computed with the current settings. Post processing elements are empty.")
+            return np.empty((0, self._n_dim)), np.empty(0), np.empty(0), np.empty(0)
         means = [marg.mean() for marg in self.margs]
         means = np.array(means).reshape((1, -1))
         d_best = np.inf
         mpp = np.inf*np.ones_like(means)
         if self.x_lsf.size > 0:
-            distance = np.sum((means - self.x_lsf)**2, axis=1)
+            distance = np.linalg.norm(means - self.x_lsf, axis=1)
             loc = np.argmin(distance)
             d_best = distance[loc]
             mpp = self.x_lsf[loc, :].reshape((1, -1))
         if self.x_fail.size > 0:
-            distance = np.sum((means - self.x_fail)**2, axis=1)
+            distance = np.linalg.norm(means - self.x_fail, axis=1)
             loc = np.argmin(distance)
             if distance[loc] < d_best:
                 mpp = self.x_fail[loc, :].reshape((1, -1))
@@ -170,7 +173,7 @@ class MC(GenericIntegrator):
         if n_conv < 1:
             n_conv = fails.shape[0]
         n_win = fails.shape[0] // n_conv
-        conv_x = np.array([n_win*i_conv for i_conv in range(1, n_conv + 1)])
+        conv_x = np.array([n_win * i_conv for i_conv in range(1, n_conv + 1)])
         conv_x[-1] = fails.shape[0]
         conv_mu = np.zeros(n_conv)
         conv_var = np.zeros(conv_mu.shape[0])

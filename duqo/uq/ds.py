@@ -183,7 +183,7 @@ class DS(GenericIntegrator):
         """
         r_max = np.sqrt(stats.chi2._ppf(1 - pf_min, df=self._n_dim))
         if not np.isfinite(r_max):
-            raise ValueError("Requested probability tolerance is too high!")
+            raise ValueError(f"Requested probability tolerance ({pf_min}) is too high!")
         # Make presearch at once with arrays to speed up
         r_grid = np.linspace(r_max / n_presearch,
                              r_max, n_presearch).reshape((-1, 1))
@@ -196,9 +196,8 @@ class DS(GenericIntegrator):
         searchs = self.const_env_stdnorm(search_points).reshape((self.fekete.shape[0], r_grid.shape[0]))
 
         if not np.isfinite(searchs).all():
-            msg = "Infinity or NAN during the transformation."
-            msg += "Try decreasing pf_min "
-            msg += "or reviewing the marginal distributions."
+            msg = f"inf or nan during the transformation. Try decreasing pf_min ({pf_min}) or reviewing " \
+                  f"the marginal distributions."
             raise OverflowError(msg)
 
         # Now search the directions with failed designs
@@ -230,7 +229,7 @@ class DS(GenericIntegrator):
         Get the radius or radii to the limit state (cons_env==0)
         in a direction, given a direction index i_dir,
         the search grid r_grid as well as the search_results
-        constraint_radi(r_grid).
+        constraint_radius(r_grid).
         """
         r_zeros = []
         tries_max = 100
@@ -333,7 +332,7 @@ class DS(GenericIntegrator):
             much more samples. Using this without a fast model is not recommended,
             thus defaults to None
 
-        n_presearch : int
+        num_presearch : int
             number of search points for each direction. Should be decreased for
             simpler functions. (minimum of 6 is recommended)
 

@@ -17,7 +17,7 @@ from sklearn.neighbors import NearestNeighbors
 from scipy.optimize import brentq
 
 
-def dbscanner(dist_mat_or_points, eps, min_samples, sample_weight, metric="euclidean"):
+def dbscan(dist_mat_or_points, eps, min_samples, sample_weight, metric="euclidean"):
     if min_samples < 3:
         min_samples = 3
     clus = DBSCAN(eps=max(1e-8, np.abs(eps)), min_samples=min_samples, metric=metric,
@@ -35,7 +35,7 @@ def optics(dist_mat_or_points, eps, min_samples, metric="euclidean"):
     return clus
 
 
-def kmeans(x_f, n_clust, batch_size=None):
+def k_means(x_f, n_clust, batch_size=None):
     if batch_size is None:
         clus = KMeans(n_clusters=n_clust)
     else:
@@ -47,7 +47,7 @@ def _reduce_to_kmeans(x_f, max_points=10000):
     if x_f.shape[0] <= 2 * max_points:
         return x_f
     n_clust = 2 * x_f.shape[1]
-    clus = kmeans(x_f, n_clust)
+    clus = k_means(x_f, n_clust)
     # means = clus.cluster_centers_
     # stds = clus.inertia_
     labels = np.unique(clus.labels_)
@@ -60,11 +60,9 @@ def _reduce_to_kmeans(x_f, max_points=10000):
         res = np.append(res, x_f[ids][::step], axis=0)
     return res
 
-    return res
 
-
-def get_dbclusters(fails, sample_weight=True,
-                   counts=None, max_num_clusters=np.inf):
+def get_clusters(fails, sample_weight=True,
+                 counts=None, max_num_clusters=np.inf):
     n_sample, n_dim = fails.shape
     if n_sample <= 1:
         return None, None
@@ -83,7 +81,7 @@ def get_dbclusters(fails, sample_weight=True,
         epsilon = eps
         if not np.isfinite(epsilon) and epsilon == 0:
             return [], None, 0, 0
-        clus = dbscanner(fails, epsilon, min_samp, sample_weight, metric)
+        clus = dbscan(fails, epsilon, min_samp, sample_weight, metric)
         # clus = optics(fails, epsilon, min_samp, metric)
         unique_labels, cnts = np.unique(clus.labels_, return_counts=True)
         unique_labels = unique_labels.tolist()
@@ -134,7 +132,7 @@ def filter_tiny(class_names, labels):
     return names, counts
 
 
-def get_clusters(fails, lsf, max_num_clusters, max_points=None):
+def memory_safe_get_clusters(fails, lsf, max_num_clusters, max_points=None):
     if fails.size + lsf.size < 5:
         print("No points passed to cluster")
         return None, None, None
@@ -152,12 +150,11 @@ def get_clusters(fails, lsf, max_num_clusters, max_points=None):
 
     x_f, counts = get_n_points(fails, lsf, max_points)
     try:
-        labels, uniques = get_dbclusters(x_f, sample_weight=True,
-                                         counts=counts,
-                                         max_num_clusters=max_num_clusters)
+        labels, uniques = get_clusters(x_f, sample_weight=True,
+                                       counts=counts,
+                                       max_num_clusters=max_num_clusters)
     except (SystemError, MemoryError) as exc:
-        print("Clustering failed due to error:")
-        print(exc)
+        print(f"Clustering failed - {exc.__class__.__name__}: {exc}")
         x_f, _ = _filter_points(fails, lsf, None)
         return x_f, -1 * np.ones(x_f.shape[0], dtype=int), [-1]
     return x_f, labels, uniques

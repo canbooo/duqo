@@ -143,7 +143,7 @@ class GenericIntegrator:
         in margs
         """
         corr_input = np.dot(std_norm_input, self.corr_transform)
-        if corr_input.ndim < 2:  # assuming single dimensionals to be a single point
+        if corr_input.ndim < 2:  # assuming single dimensional arrays to represent a single point
             corr_input = corr_input.reshape((1, self._n_dim))
         orig_input = np.zeros(corr_input.shape, dtype=np.float64)
         for k in range(self._n_dim):
