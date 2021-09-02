@@ -24,7 +24,7 @@ class MC(GenericIntegrator):
     def calc_fail_prob(self, prob_tol: float = 1e-4, mc_batch_size: typing.Union[int, float] = 1e5,
                        CoV: float = 0.1, max_mc_samples: typing.Union[int, float] = None,
                        post_proc: bool = False, doe=None,
-                       converge: bool = True, **kwargs):
+                       converge: bool = True, verbose: int = 0, **kwargs):
         """ Estimate the probability of failure P(F)
         Parameters
         ----------
@@ -135,9 +135,9 @@ class MC(GenericIntegrator):
                 # ddof==1 and sum(wi)==1 so w_i = n_i - 1
                 batch_sizes = np.append(batch_sizes, mc_batch_size - 1)
                 fail_prob_var = np.sum(fp_vars * mc_batch_size / batch_sizes.sum())
-                if mc_batch_size < sample_limit:
+                if mc_batch_size < sample_limit and verbose:
                     print(f"{total_samples:.4e}, samples computed")
-                if converge and fail_prob > 0 :
+                if converge and fail_prob > 0:
                     if fail_prob_var / fail_prob <= CoV:
                         break
             fail_prob = fail_prob / total_samples
