@@ -1,6 +1,12 @@
 # DUQO: *D*esign *U*ncertainty *Q*uantification and *O*ptimization framework
-This repo is under construction to be submitted to code ocean for reproducibility. Expect big changes after
-publication on code ocean. Also expect lolhr4ra, i.e. the proposed method for uncertainty quantification.
+The repo is under ongoing development. Breaking changes may occur in next versions.
+
+Current stable version can be installed using pip
+`pip install duqo`
+
+Alternatively, clone the master branch and use `pip install -e .`
+
+See [examples](https://github.com/canbooo/duqo/tree/master/examples) for example usage. Documentation is on its way.
 
 ## Reliability Analysis and Reliability-based Robust Design Optimization
 Generally, given one or more limit state functions of form
