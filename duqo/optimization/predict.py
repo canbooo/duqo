@@ -12,7 +12,7 @@ import numpy as np
 from scipy import stats
 
 from .space import FullSpace
-from duqo.proba import DS, MC
+from duqo.proba import DS, MC, SUSE, ISPUD, FORM
 from duqo.doe.lhs import make_doe
 
 
@@ -50,11 +50,19 @@ def _find_integrator_cls(integrator):
     """
     integrator = integrator.upper()
     if integrator == "DS":
-        return DS
+        IntCls = DS
     elif integrator == "MC":
-        return MC
-    msg = f"Requested integrator {integrator} is not found."
-    raise ValueError(msg)
+        IntCls = MC
+    elif integrator == "ISPUD":
+        IntCls = ISPUD
+    elif integrator == "FORM":
+        IntCls = FORM
+    elif integrator == "SUSE":
+        IntCls = SUSE
+    else:
+        msg = f"Requested integrator {integrator} is not found."
+        raise ValueError(msg)
+    return IntCls
 
 
 def _make_chain(methods: list):
@@ -103,13 +111,18 @@ def _default_init(targ_prob: float, acc_max: float, num_inp: int,
     int_args : dict
         Keyword arguments to pass to integrators
     """
-    if num_inp < 15:
-        integrators = ["DS"]
-        int_args = {"num_starts": 1, "multi_region": True}
-    else:
-        integrators = ["MC"]
+    if targ_prob * acc_max >= 1e-5:
+        if targ_prob * acc_max >= 1e-4:
+            integrators = ["MC"]
+        else:
+            integrators = ["SUSE", "MC"]
         int_args = {"num_starts": 1, "batch_size": 1e5}
-
+    elif num_inp < 15:
+        integrators = ["SUSE", "DS"]
+        int_args = {"num_starts": 1}
+    else:
+        integrators = ["SUSE"]
+        int_args = {"num_starts": num_para}
     print("Using", integrators, "as default chain.")
     return integrators, int_args
 
