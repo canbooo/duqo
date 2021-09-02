@@ -58,15 +58,16 @@ class RRDO:
         if co_fp is None:
             if targ_fp is None:
                 targ_fp = 1e-2
-            n_sto_con_inps = np.sum(full_space.inp_space.inds["sto_con"])
+            n_sto_con_inps = int(np.sum(full_space.inp_space.inds["sto_con"]))
             if n_sto_con_inps > 1:
                 co_fp = CondProba(targ_fp, n_sto_con_inps)
         elif targ_fp is not None:
-            co_fp.set_target_prob(targ_fp)
+            co_fp.target_fail_prob = targ_fp
         if not hasattr(co_fp, "calc_fail_prob"):
             raise TypeError(f"If passed, co_fp must be a CondProba instance. Got  {type(co_fp)}.")
         self.co_fp = co_fp
         self.opt_chk = opt_chk
+        self.evaluate = self.obj_con
 
     def obj(self, x_opt, det_objs=None):
         """ Evaluates all objectives in deterministic and stochastic
@@ -264,7 +265,6 @@ class RRDO:
                     fail_probs[i_design, :] = res[1]
                     feasible[i_design] = res[0]
         return objs, feasible, det_cons, fail_probs
-
 
     def gen_post_proc(self, x_opt, moment=True, proba=True):
         """Gather all samples used for the stochastic assessments
