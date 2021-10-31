@@ -16,6 +16,7 @@ as well as  the input distributions
 as parametrized by <img src="https://render.githubusercontent.com/render/math?math=%5Ccolor%7Bred%7D%20%5Cboldsymbol%7B%5Ctheta%7D_%7B%5Cmathbf%7BX%7D%7D">, 
 uncertainty quantification, i.e. reliability-analysis, seeks to compute the probability of failure
 > <img src="https://render.githubusercontent.com/render/math?math=%5Ccolor%7Bred%7D%20P(%5Cmathcal%7BF%7D)%20%3D%20P(g(%5Cmathbf%7BX%7D)%20%3C%200)">
+whereas robustness analysis investigates the variance of some performance indicator function such as an optimization objective.
 
 To solve the uncertainty optimization, i.e. reliability-based robust design optimization, problem, the evaluation of <img src="https://render.githubusercontent.com/render/math?math=%5Ccolor%7Bred%7D%20P(%5Cmathcal%7BF%7D)">
 as well as the expectations and variances of the objective functions 
