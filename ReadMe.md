@@ -28,11 +28,20 @@ the limit states <img src="https://render.githubusercontent.com/render/math?math
 <img src="https://render.githubusercontent.com/render/math?math=%5Ccolor%7Bred%7D%20c_k(%5Ccdot)">
 as input and wraps them with `problem.obj_con` to be used by a generic gradient-free optimization algorithm.
 
+## Install
+You can install the latest stable release using 
+`pip install duqo`
+Alternatively, you can install the most recent version using
+`pip install git+https://github.com/canbooo/duqo.git`
+or without git
+`pip install --upgrade https://github.com/canbooo/duqo.git`
+
 ## Citation
-If this repo helped you, I would appreciate citations:
+If this repo helped your research, I would appreciate you citing:
 
 > C. Bogoclu, T. Nestorović, D. Roos; *Local Latin Hypercube Refinement for Multi-objective Design Uncertainty Optimization*,
 Applied Soft Computing (2021)
+
 
 ## Contribution
 Contributions welcome as there is a long road ahead to make this research code to a usable one.
