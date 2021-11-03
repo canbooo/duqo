@@ -21,7 +21,7 @@ whereas robustness analysis investigates the variance of some performance indica
 To solve the uncertainty optimization, i.e. reliability-based robust design optimization, problem, the evaluation of <img src="https://render.githubusercontent.com/render/math?math=%5Ccolor%7Bred%7D%20P(%5Cmathcal%7BF%7D)">
 as well as the expectations and variances of the objective functions 
 > <img src="https://render.githubusercontent.com/render/math?math=%5Ccolor%7Bred%7D%20f(%5Cmathbf%7Bx%7D)%3A%20%5Cmathbb%7BR%7D%5En%20%5Crightarrow%20%5Cmathbb%7BR%7D">
-and possible deterministic constraints
+and possibly deterministic constraints
 > <img src="https://render.githubusercontent.com/render/math?math=%5Ccolor%7Bred%7D%20c(%5Cmathbf%7Bx%7D)%3A%20%5Cmathbb%7BR%7D%5En%20%5Crightarrow%20%5Cmathbb%7BR%7D">
 with respect to the distribution parameters <img src="https://render.githubusercontent.com/render/math?math=%5Ccolor%7Bred%7D%20%5Ctheta_%7B%5Cmathbf%7BX%7D%7D">
 is required. Besides the input distributions, `duqo` takes the objectives <img src="https://render.githubusercontent.com/render/math?math=%5Ccolor%7Bred%7D%20f_i(%5Ccdot)">,
