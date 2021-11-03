@@ -43,8 +43,8 @@ If this repo helped your research, I would appreciate you citing:
 > C. Bogoclu, T. Nestorović, D. Roos; *Local Latin Hypercube Refinement for Multi-objective Design Uncertainty Optimization*,
 Applied Soft Computing (2021)
 
-Article: [https://www.sciencedirect.com/science/article/abs/pii/S1568494621007286](https://www.sciencedirect.com/science/article/abs/pii/S1568494621007286)
-Preprint: [https://arxiv.org/pdf/2108.08890.pdf](https://arxiv.org/pdf/2108.08890.pdf)
+- Article: [https://www.sciencedirect.com/science/article/abs/pii/S1568494621007286](https://www.sciencedirect.com/science/article/abs/pii/S1568494621007286)
+- Preprint: [https://arxiv.org/pdf/2108.08890.pdf](https://arxiv.org/pdf/2108.08890.pdf)
 
 ## Contribution
 Contributions welcome as there is a long road ahead to make this research code to a usable one.
