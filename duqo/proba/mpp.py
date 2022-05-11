@@ -17,7 +17,7 @@ import numpy as np
 from scipy.optimize import minimize
 from scipy import stats
 from joblib import Parallel, delayed
-from ._integrator_base import GenericIntegrator, to_safety_index
+from .generic_integrator import GenericIntegrator, to_safety_index
 from ..doe.lhs import make_doe
 
 

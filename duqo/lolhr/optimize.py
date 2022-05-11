@@ -145,7 +145,7 @@ def min_dist_from_pdists(n_samp, pdists):
     return scores
 
 
-def lolhr4rrdo(problem, lower, upper, optimizer, model_trainer, step_size,
+def rrdo_lolhr(problem, lower, upper, optimizer, model_trainer, step_size,
                max_evals, start_doe=None, optimizer_kwargs=None, model_trainer_args=(), model_trainer_kwargs=None,
                doe_save_path="", init_bound_tol=1e-3, archive_save_path=""):
     if optimizer_kwargs is None:
@@ -272,6 +272,8 @@ def adapt_doe(lower, upper, doe, x_lsf, x_fail=None, num_samples=4,
 
     new_doe = doe.copy()
     for i_class, (bounds, samples) in enumerate(zip(all_bounds, points_per_class)):
+        if not samples:
+            continue
         n_bins = samples
         n_empty = 0
         while n_empty < samples:

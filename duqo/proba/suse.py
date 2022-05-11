@@ -3,7 +3,7 @@ import warnings
 import numpy as np
 from scipy import stats
 
-from duqo.proba._integrator_base import GenericIntegrator, to_safety_index
+from duqo.proba.generic_integrator import GenericIntegrator, to_safety_index
 from duqo.doe.lhs import make_doe
 
 

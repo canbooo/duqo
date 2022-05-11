@@ -14,7 +14,7 @@ from scipy.optimize import brentq
 from joblib import Parallel, delayed
 
 from ..doe.hyperspace_division import fekete_points
-from ._integrator_base import GenericIntegrator, to_safety_index
+from .generic_integrator import GenericIntegrator, to_safety_index
 
 
 def _sanity_check_calc(multi_region, num_presearch, prob_tol, num_parallel,

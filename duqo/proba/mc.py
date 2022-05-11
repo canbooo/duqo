@@ -11,7 +11,7 @@ import typing
 import numpy as np
 
 
-from ._integrator_base import GenericIntegrator, to_safety_index
+from .generic_integrator import GenericIntegrator, to_safety_index
 
 
 class MC(GenericIntegrator):

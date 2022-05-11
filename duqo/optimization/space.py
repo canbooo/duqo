@@ -50,7 +50,7 @@ class InputSpace:
     num_inp : int
         total number of parameters (deterministic + stochastic) to
         pass to objectives and constraints. If not submitted, the number
-        of variables in mulvar will be used.
+        of variables in multivariate will be used.
 
     opt_inps : None or iterable
         The indices of the inputs used for the optimization inputs in the full
@@ -286,7 +286,7 @@ class InputSpace:
 
         Returns
         -------
-        mulvar : MultiVar
+        multivariate : MultiVar
             Multivariate at the optimization point x_opt
         """
         x_opt = check_shape(x_opt, self.inds["opt"].sum(), "opt_mulvar")

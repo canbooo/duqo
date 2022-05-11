@@ -1,1 +1,1 @@
-from .rrdo_lolhr import lolhr4rrdo
+from .optimize import rrdo_lolhr
