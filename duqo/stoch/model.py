@@ -279,8 +279,8 @@ class MultiVar:
 
     @property
     def var_inds(self):
-        """Get the indexes of the random variables, that are defined over CoV"""
-        return [not res for res in self.cov_inds()]
+        """Get the indexes of the random variables, that are defined over variance"""
+        return [res for res in range(len(self.dists)) if res not in self.cov_inds]
 
     @property
     def mean(self):
