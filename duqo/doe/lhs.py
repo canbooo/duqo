@@ -117,7 +117,7 @@ def uniform_lhs(lower_bounds, upper_bounds, num_sample, corr_mat=0,
     return doe_curr
 
 
-def orthogonal_sampling(margs, num_sample: int, corr_mat=0, num_iter=100):
+def orthogonal_sampling(margs, num_sample: int, corr_mat=0, num_iter=100, central_design=True):
     """
     Creates an arbitrarily distributed LHS.
 
@@ -180,7 +180,9 @@ def orthogonal_sampling(margs, num_sample: int, corr_mat=0, num_iter=100):
             best_score = score
 
     doe = np.zeros(best_probs.shape)
-
+    if not central_design:
+        delta = 1 / num_sample / 2
+        best_probs += uniform(-delta, 2 * delta).rvs(best_probs.shape)
     # Inverse transform sampling
     for i_var in range(num_var):
         doe[:, i_var] = margs[i_var].ppf(best_probs[:, i_var])
@@ -422,7 +424,7 @@ def inherit_lhs(num_sample, empty_bins, bounds_l, bounds_u):
 
 
 def make_doe(num_sample, margs=None, corr_mat=0, num_tries=None,
-             lower_bound=None, upper_bound=None, verbose=0):
+             lower_bound=None, upper_bound=None, central_design=True, verbose=0):
     """
     Makes an LHS with desired distributions and correlation
 
@@ -471,7 +473,7 @@ def make_doe(num_sample, margs=None, corr_mat=0, num_tries=None,
     if np.isscalar(corr_mat):
         corr_mat = np.eye(num_dims) * (1 - corr_mat) + np.ones((num_dims, num_dims)) * corr_mat
     n_iter = num_tries // 5
-    doe_final = orthogonal_sampling(margs, num_sample, corr_mat, num_iter=n_iter)
+    doe_final = orthogonal_sampling(margs, num_sample, corr_mat, num_iter=n_iter, central_design=central_design)
 
     msg1 = ''
     if lower_bound is not None:
